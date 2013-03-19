@@ -38,8 +38,11 @@ $page = basename($_SERVER['PHP_SELF']);
 </div>
 <div id='navigation'>
     <div id='sidebar-search'>
+        <form action='index.php' method='get'>
         <input id='lpStore_search' type="text" placeholder="Corp Search..." />
-    </button>
+        <button class='tip-right' type='submit'><i class='icon-search icon-white'></i></button>
+        <input type='hidden' name='corpID' id='autoCorpID' value='' />
+        </form>
     </div>    
     <ul style='display: block;'>
             <?php

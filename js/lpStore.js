@@ -71,7 +71,7 @@ $(document).ready(function() {
 		},
 		minLength: 2,
 		select: function(event, ui) {
-			$('#lpTypeID').val(ui.item.id);
+			$('#autoCorpID').val(ui.item.id);
 		}
 	});
 }); 

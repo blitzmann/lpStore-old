@@ -16,6 +16,10 @@ h1, h2, h3, h4 , h5, h6 {
     font-family: "open sans condensed";
 }
 
+form {
+    margin-bottom: -10;
+}
+
 /* Header */
 #header {
     height: 70px;
@@ -97,19 +101,30 @@ h1, h2, h3, h4 , h5, h6 {
 	background-color: #eeeeee;
 }
 
-#sidebar-search { width: 100%; }
-
 #sidebar-search input[type="text"] {
     color: #AAAAAA;
     background-color: #222222;
-}
-#sidebar-search input[type="text"] {
     height: 2em;
     border: 0 none;
     border-radius: 0;
     box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.7) inset, 0 1px 0 rgba(255, 255, 255, 0.2);
-    padding: 4px 10px 5px;
-    width: 100%;
+    padding: 5px 10px;
+    width: 156px;
+}
+
+#sidebar-search button {
+    border: 0 none;
+    color: #AAAAAA;
+    height: 2em;
+    margin-left: -4;
+    background-color: #222222;
+    box-shadow: -2px 2px 3px rgba(0, 0, 0, 0.7) inset, 0 1px 0 rgba(255, 255, 255, 0.2);
+    margin-top: -10px;
+    padding: 5px 10px;
+}
+
+#sidebar-search button i {
+    opacity: 0.7;
 }
 
 /***************
