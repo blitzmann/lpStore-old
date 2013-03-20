@@ -2,6 +2,8 @@
 
 require 'head.php'; 
 
+$regionID = 10000002; // placeholder, allow settings to be imported from emdr.py
+
 $verified = array();
 //Corps that have been verified:
 foreach ($DB->qa("SELECT * FROM `lpVerified`", array()) AS $corp) {
@@ -54,7 +56,7 @@ if (isset($_GET['corpID'])) {
             $req = array();
             
             // get pricing info on item
-            if (!($price = $memcache->get('forge-sell-'.$offer['typeID']))) {
+            if (!($price = $memcache->get('emdr-region:'.$regionID.'-typeID:'.$offer['typeID']))) {
                 $price = json_encode(array(0,0,0,0)); }
             $price = json_decode($price);
             
@@ -85,7 +87,7 @@ if (isset($_GET['corpID'])) {
                 if ($reqItem['quantity'] <= 0) {
                     continue; }
 
-                if (!($rprice = $memcache->get('forge-sell-'.$reqItem['typeID']))) {
+                if (!($rprice = $memcache->get('emdr-region:'.$regionID.'-typeID:'.$reqItem['typeID']))) {
                     $rprice = json_encode(array(0,0,0,0)); }
                 $rprice = json_decode($rprice);
                 $totalCost = $totalCost + ($rprice[0] * $reqItem['quantity']);
@@ -104,7 +106,7 @@ if (isset($_GET['corpID'])) {
                     WHERE       blueprintTypeID = ?', array($offer['typeID']));
                 
                 // set pricing info as the manufactured item
-                if (!($price = $memcache->get('forge-sell-'.$manTypeID))) {
+                if (!($price = $memcache->get('emdr-region:'.$regionID.'-typeID:'.$manTypeID))) {
                     $price = json_encode(array(0,0,0,0)); }
                 $price = json_decode($price);
                 
@@ -164,7 +166,7 @@ if (isset($_GET['corpID'])) {
                     if ($reqItem['quantity'] <= 0) {
                         continue; }
 
-                    if (!($rprice = $memcache->get('forge-sell-'.$reqItem['typeID']))) {
+                    if (!($rprice = $memcache->get('emdr-region:'.$regionID.'-typeID:'.$reqItem['typeID']))) {
                         $rprice = json_encode(array(0,0,0,0)); }
 
                     $rprice = json_decode($rprice);
@@ -242,7 +244,7 @@ else if (isset($_GET['storeID'])) {
                 WHERE       typeName LIKE ?', array($manItem));
             
             // set pricing info as the manufactured item
-            if (!($price = $memcache->get('forge-sell-'.$manTypeID))) {
+            if (!($price = $memcache->get('emdr-region:'.$regionID.'-typeID:'.$manTypeID))) {
                 $price = json_encode(array(0,0,0,0)); }
             $price = json_decode($price);
             
@@ -302,7 +304,7 @@ else if (isset($_GET['storeID'])) {
                 if ($reqItem['quantity'] <= 0) {
                     continue; }
 
-                if (!($rprice = $memcache->get('forge-sell-'.$reqItem['typeID']))) {
+                if (!($rprice = $memcache->get('emdr-region:'.$regionID.'-typeID:'.$reqItem['typeID']))) {
                     $rprice = json_encode(array(0,0,0,0)); }
 
                 $rprice = json_decode($rprice);
@@ -338,7 +340,7 @@ else if (isset($_GET['lpTypeID'])){
 		
 	echo "<h3>$name</h3><table class='table table-bordered table-condensed table-striped'>
 	<tr><th>Corporation</th><th>LP Cost</th><th>ISK Cost</th><th>Required Items</th>";
-    if (!($price = $memcache->get('forge-sell-'.$_GET['lpTypeID']))) {
+    if (!($price = $memcache->get('emdr-region:'.$regionID.'-typeID:'.$_GET['lpTypeID']))) {
             $price = json_encode(array(0)); }
     $price = json_decode($price);
 
