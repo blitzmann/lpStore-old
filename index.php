@@ -2,8 +2,6 @@
 
 require 'head.php'; 
 
-$regionID = 10000002; // placeholder, allow settings to be imported from emdr.py
-
 $verified = array();
 //Corps that have been verified:
 foreach ($DB->qa("SELECT * FROM `lpVerified`", array()) AS $corp) {
@@ -14,6 +12,8 @@ foreach ($DB->qa("SELECT * FROM `lpVerified`", array()) AS $corp) {
 if (isset($_GET['corpID'])) {
     try {
         $corpID = filter_input(INPUT_GET, 'corpID', FILTER_VALIDATE_INT);
+        $regionID = filter_input(INPUT_GET, 'regionID', FILTER_VALIDATE_INT);
+
         $name = $DB->q1('SELECT itemName FROM invUniqueNames WHERE itemID = ? AND groupID = 2', array($corpID));
        
         if ($name == false) {
@@ -391,6 +391,14 @@ else {
         
             foreach ($results AS $corp){
                 echo "<option ".(in_array($corp['corporationID'], $verified) ? " style='background-color:lightgreen !important;'" : null )." value='".$corp['corporationID']."'>".$corp['itemName']."</option>";
+            }
+        ?>
+        </select>
+        <select class='xlarge' name='regionID'>
+        <?php
+            
+            foreach ($regions AS $name => $id){
+                echo "<option value='".$id."'>".$name."</option>";
             }
         ?>
         </select>
