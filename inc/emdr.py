@@ -121,7 +121,7 @@ def worker(job_json):
         if (REGIONS == False or (REGIONS != False and rowsets['regionID'] in regionDict.values())):
             if (DEBUG):
                 print "\n\n\n\n======== New record ========";
-            cached = mc.get('forge-sell-'+str(typeID));
+            cached = mc.get('emdr-region:'+str(rowsets['regionID'])+'-typeID:'+str(typeID));
             
             # If data has been cached for this item, check the dates. If dates match, skip
             if (cached != None):
@@ -190,7 +190,7 @@ def worker(job_json):
                     generatedAt]
                 mc.set('emdr-region:'+str(rowsets['regionID'])+'-typeID:'+str(typeID), simplejson.dumps(values));
                 if (DEBUG):
-                    print 'SUCCESS: forge-sell-'+str(typeID)
+                    print 'SUCCESS: emdr-region:'+str(rowsets['regionID'])+'-typeID:'+str(typeID)
                 f += 1
            
 
