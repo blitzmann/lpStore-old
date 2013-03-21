@@ -6,7 +6,7 @@ include 'DB.php';
 $DB = new DB(parse_ini_file('/home/http/private/db-eve.ini'));
 
 $regions = json_decode(file_get_contents('inc/regions.json'),true);
-
+$emdrVersion = 1;
 $time = microtime();
 $time = explode(' ', $time);
 $time = $time[1] + $time[0];

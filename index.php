@@ -54,44 +54,48 @@ if (isset($_GET['corpID'])) {
         foreach ($offers AS $offer){
             $totalCost = $offer['iskCost'];
             $req = array();
-            
+            $cached = false;
             // get pricing info on item
-            if (!($price = $memcache->get('emdr-region:'.$regionID.'-typeID:'.$offer['typeID']))) {
-                $price = json_encode(array(0,0,0,0)); }
-            $price = json_decode($price);
-            
-            $timeDiff = (time() - $price[3])/60/60; // time difference in hours
-    
-            if (round($timeDiff) >= 100) {
-                $label = ">99"; }
+            // todo: there's a better way to handle no cache and the prices for such. Find it
+            if ($price = $memcache->get('emdr-'.$emdrVersion.'-'.$regionID.'-'.$offer['typeID'])) {
+                $cached = true;
+                $price = json_decode($price, true);
+                $timeDiff = (time() - $price['orders']['generatedAt'])/60/60; // time difference in hours
+            }
+
+            if ($cached) {
+                if (round($timeDiff) >= 100) {
+                    $label = ">99"; }
+                else {
+                    $label = round($timeDiff); }
+                
+                if ($timeDiff > 72) {
+                    $fresh = array('important', 'Price data is over 72 hours old'); }
+                else if ($timeDiff > 24) {
+                    $fresh = array('warning', 'Price data is over 24 hours old'); }
+                else {
+                    $fresh = array('success', 'Price data is under 24 hours old'); }
+            }
             else {
-                $label = round($timeDiff);
-                }
-            if ($price[3] == 0) {
                 $label = "N/A";
                 $fresh = array('default', 'Price has not yet been cached'); }
-            else if ($timeDiff > 72) {
-                $fresh = array('important', 'Price data is over 72 hours old'); }
-            else if ($timeDiff > 24) {
-                $fresh = array('warning', 'Price data is over 24 hours old'); }
-            else {
-                $fresh = array('success', 'Price data is under 24 hours old'); }
-
+                
             if (isset($reqItemsContain[$offer['storeID']])){
                 $reqItems = $reqItemsContain[$offer['storeID']];}
             else { $reqItems = array(); }
 
             $manReqItems = array();
                         
+            // todo: should we parse pricing data for required items with no cache of their own?
             foreach ($reqItems AS $reqItem) {
                 if ($reqItem['quantity'] <= 0) {
                     continue; }
 
-                if (!($rprice = $memcache->get('emdr-region:'.$regionID.'-typeID:'.$reqItem['typeID']))) {
-                    $rprice = json_encode(array(0,0,0,0)); }
-                $rprice = json_decode($rprice);
-                $totalCost = $totalCost + ($rprice[0] * $reqItem['quantity']);
-                array_push($req, $reqItem['quantity']." x ".$reqItem['typeName']); 
+				if ($rprice = $memcache->get('emdr-'.$emdrVersion.'-'.$regionID.'-'.$reqItem['typeID'])) {
+					$rprice = json_decode($rprice, true);
+					$totalCost = $totalCost + ($rprice['orders']['sell'][0] * $reqItem['quantity']);
+					array_push($req, $reqItem['quantity']." x ".$reqItem['typeName']); 
+				}
             }
             
             // Blueprints are special fucking buterflies
@@ -106,9 +110,9 @@ if (isset($_GET['corpID'])) {
                     WHERE       blueprintTypeID = ?', array($offer['typeID']));
                 
                 // set pricing info as the manufactured item
-                if (!($price = $memcache->get('emdr-region:'.$regionID.'-typeID:'.$manTypeID))) {
-                    $price = json_encode(array(0,0,0,0)); }
-                $price = json_decode($price);
+                if (!($price = $memcache->get('emdr-'.$emdrVersion.'-'.$regionID.'-'.$manTypeID))) {
+                    $price = json_encode(array('orders' => array('generatedAt' => 0, 'sell'=>array(0,0), 'buy'=>array(0,0)))); }
+                $price = json_decode($price, true);
                 
                 // Here we merge bill of materials for blueprints (remembering to multiple qnt with # of BPC runs)
                 $manReqItems = array_merge(
@@ -162,33 +166,33 @@ if (isset($_GET['corpID'])) {
                         AND g.categoryID != 16
                         AND t.groupID = g.groupID', array($offer['quantity'], $manTypeID))); // append material needs to req items      
                 
-               foreach ($manReqItems AS $reqItem) {
+				foreach ($manReqItems AS $reqItem) {
                     if ($reqItem['quantity'] <= 0) {
                         continue; }
 
-                    if (!($rprice = $memcache->get('emdr-region:'.$regionID.'-typeID:'.$reqItem['typeID']))) {
-                        $rprice = json_encode(array(0,0,0,0)); }
-
-                    $rprice = json_decode($rprice);
-                    $totalCost = $totalCost + ($rprice[0] * $reqItem['quantity']);
-                }
-                array_push($req, "Manufacturing Materials");
+                    if ($rprice = $memcache->get('emdr-'.$emdrVersion.'-'.$regionID.'-'.$reqItem['typeID'])) {
+						$rprice = json_decode($rprice, true);
+						$totalCost = $totalCost + ($rprice['orders']['sell'][0] * $reqItem['quantity']);
+					}
+				}
+				array_push($req, "Manufacturing Materials");
+				
             }     
             else {
                 $name = $offer['quantity']." x ".$offer['typeName']; }
                
-            if ($price[0] == 0) {
+            if (!$cached) {
                 $lp2isk = 'N/A';
                 $profit = 0; }
             else {
-                $profit = ($price[0]*$offer['quantity'] - $totalCost);
+                $profit = ($price['orders']['sell'][0]*$offer['quantity'] - $totalCost);
                 $lp2isk = $profit / $offer['lpCost']; 
             }
 
             echo "
             <tr id='lp-$offer[typeID]'>
                 <td><span class='label label-".$fresh[0]." pop lp-label' 
-                    data-content='".($fresh[0] !== 'default' ? "Reported: ".round($timeDiff)."h ago<br />Price: ".number_format($price[0], 2) : null)."' 
+                    data-content='".($fresh[0] !== 'default' ? "Reported: ".round($timeDiff)."h ago<br />Price: ".number_format($price['orders']['sell'][0], 2) : null)."' 
                     rel='popover' 
                     data-placement='right' 
                     data-original-title='".$fresh[1]."' 
@@ -198,7 +202,7 @@ if (isset($_GET['corpID'])) {
                 <td>".implode("<br />", $req)."&nbsp;</td>
                 <td>".number_format($totalCost)."</td>
                 <td>".number_format($profit)."</td>
-                <td>".$price[1]."</td>
+                <td>".$price['orders']['sell'][1]."</td>
                 <td>".(is_numeric($lp2isk)? number_format($lp2isk) : $lp2isk)."</td>
             </tr>";
         }
@@ -244,9 +248,9 @@ else if (isset($_GET['storeID'])) {
                 WHERE       typeName LIKE ?', array($manItem));
             
             // set pricing info as the manufactured item
-            if (!($price = $memcache->get('emdr-region:'.$regionID.'-typeID:'.$manTypeID))) {
-                $price = json_encode(array(0,0,0,0)); }
-            $price = json_decode($price);
+            if (!($price = $memcache->get('emdr-'.$emdrVersion.'-'.$regionID.'-'.$manTypeID))) {
+                $price = json_encode(array('orders' => array('generatedAt' => 0, 'sell'=>array(0,0), 'buy'=>array(0,0)))); }
+            $price = json_decode($price, true);
             
             // Here we merge bill of materials for blueprints (remembering to multiple qnt with # of BPC runs)
             $manReqItems = array_merge(
@@ -304,7 +308,7 @@ else if (isset($_GET['storeID'])) {
                 if ($reqItem['quantity'] <= 0) {
                     continue; }
 
-                if (!($rprice = $memcache->get('emdr-region:'.$regionID.'-typeID:'.$reqItem['typeID']))) {
+                if (!($rprice = $memcache->get('emdr-'.$emdrVersion.'-'.$regionID.'-'.$reqItem['typeID']))) {
                     $rprice = json_encode(array(0,0,0,0)); }
 
                 $rprice = json_decode($rprice);
@@ -340,9 +344,9 @@ else if (isset($_GET['lpTypeID'])){
 		
 	echo "<h3>$name</h3><table class='table table-bordered table-condensed table-striped'>
 	<tr><th>Corporation</th><th>LP Cost</th><th>ISK Cost</th><th>Required Items</th>";
-    if (!($price = $memcache->get('emdr-region:'.$regionID.'-typeID:'.$_GET['lpTypeID']))) {
-            $price = json_encode(array(0)); }
-    $price = json_decode($price);
+    if (!($price = $memcache->get('emdr-'.$emdrVersion.'-'.$regionID.'-'.$_GET['lpTypeID']))) {
+            $price = json_encode(array('orders' => array('generatedAt' => 0, 'sell'=>array(0,0), 'buy'=>array(0,0)))); }
+    $price = json_decode($price, true);
 
 	foreach ($offers AS $offer){
         

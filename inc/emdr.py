@@ -20,14 +20,13 @@ import sys
 # per processor, a decent machine can support hundreds or thousands of greenlets.
 # I recommend setting this to the maximum number of connections your database
 # backend can accept, if you must open one connection per save op.
-MAX_NUM_POOL_WORKERS = 11
+MAX_NUM_POOL_WORKERS = 500
 DEBUG = False
 REGIONS = 'regions.json' #set this to a file containing JSON of regions to filter against
+VERSION = 1 # Change every time format for memcache values changes
 
-# data stored, not implemented
-SELL    = True
-BUY     = False
-HISTORY = False
+ORDERS  = True
+HISTORY = False # not implemented
 
 ## todo: customizable key format
 ## todo: use of mysql tables for storage / backup
@@ -86,6 +85,8 @@ def worker(job_json):
     '''
     todo:   look into putting it into mysql, loading mysql into memcache
             look into logging to files per type id
+            remove `fivePercentOfTotal`? Can just calculate that from total
+            recurse into rowsets: every feed is not necessarily 1 typeID (though it usually is)
     '''
     global f;
     global s;
@@ -102,12 +103,12 @@ def worker(job_json):
 
     # Un-serialize the JSON data to a Python dict.
     market_data = simplejson.loads(market_json);
-
+    
     # Gather some useful information
     name = market_data.get('generator');
     name = name['name'];
     resultType = market_data.get('resultType');
-    rowsets = market_data.get('rowsets')[0];
+    rowsets = market_data.get('rowsets')[0]; # recurse into others, not just [0]
     typeID = rowsets['typeID'];
     columns = market_data.get('columns');
     
@@ -116,28 +117,69 @@ def worker(job_json):
     generatedAt = parse(rowsets['generatedAt']);
     
     numberOfSellItems = 0;
+    numberOfBuyItems  = 0;
+
     sellPrice = {}
-    if (resultType == 'orders'):
-        if (REGIONS == False or (REGIONS != False and rowsets['regionID'] in regionDict.values())):
-            if (DEBUG):
-                print "\n\n\n\n======== New record ========";
-            cached = mc.get('emdr-region:'+str(rowsets['regionID'])+'-typeID:'+str(typeID));
-            
-            # If data has been cached for this item, check the dates. If dates match, skip
-            if (cached != None):
-                #if we have data in cache, split info into list
-                cachePieces = simplejson.loads(cached);
-                
-                # parse date
-                cachedate = cachePieces[3];
+    buyPrice  = {}
+    data = { # set defaults, will be overwritten during parsing, or use old cache?
+        'orders': {
+            'generatedAt': False,
+            'sell': False,
+            'buy': False
+        },
+        'history': {
+            'generatedAt': False}
+    }
+        
+    if DEBUG: # write raw json to file
+        try:
+            file = open("type-"+str(typeID)+".txt", "w")
+            try:
+                file.write(market_json) # Write a string to a file
+            finally:
+                file.close()
+        except IOError:
+            pass
+        
+    '''
+    Cache is in this format: 
+    
+    emdr-VERSION-REGIONID-TYPEID = 
+        {'orders': {
+            'generatedAt': timestamp,
+            'sell': [fiveAverageSellPrice, numberOfSellItems],
+            'buy': [fiveAverageBuyPrice, numberOfBuyItems] }
+        'history': [] }
+    '''
+    if (REGIONS == False or (REGIONS != False and rowsets['regionID'] in regionDict.values())):
+        cached = mc.get('emdr-'+str(VERSION)+'-'+str(rowsets['regionID'])+'-'+str(typeID));
+        
+        # If data has been cached for this item, check the dates. If dates match, skip
+        # todo: TEST TO MAKE SURE this is not deleting data, and only overwriting old cache
+        if (cached != None):
+            #if we have data in cache, split info into list
+            cache = simplejson.loads(cached);
+            if DEBUG:
+                print "\n\n(",resultType,") Cache:",cache
+            # parse date
+            if cache[resultType]['generatedAt'] is not False:
+                cachedate = cache[resultType]['generatedAt'];
                 if (DEBUG):
-                        print "\nCached data found!\n\tNew date: "+str(datetime.fromtimestamp(generatedAt))+"\n\tCached date: "+ str(datetime.fromtimestamp(cachedate));
+                        print "\nCached data found (result type: ",resultType,")!\n\tNew date: "+str(datetime.fromtimestamp(generatedAt))+"\n\tCached date: "+ str(datetime.fromtimestamp(cachedate));
                 if (generatedAt < cachedate):
                     s += 1
                     if (DEBUG):
                         print "\t\tSKIPPING";
                     return '';
+                
+            data = cache # set default data to cached data
+                
+        if (ORDERS and resultType == 'orders'):
+            data['orders']['generatedAt'] = generatedAt
+            if (DEBUG):
+                print "\n\n\n\n======== New record ========";
 
+            # Start putting pricing info (keys) into dicts with volume (values)
             for row in rowsets['rows']:
                 order = dict(zip(columns, row))
                 
@@ -149,8 +191,20 @@ def worker(job_json):
                     else:
                         sellPrice[order['price']] = order['volRemaining'];
                     numberOfSellItems += order['volRemaining'];
-            if (DEBUG):    
-                print "Total volume on market: ",numberOfSellItems
+                else:
+                    if (DEBUG):
+                        print "Found buy order for "+str(order['price']) + "; vol: "+str(order['volRemaining']);
+                    if (buyPrice.get(order['price']) != None):
+                        buyPrice[order['price']] += order['volRemaining'];
+                    else:
+                        buyPrice[order['price']] = order['volRemaining'];
+                    numberOfBuyItems += order['volRemaining'];
+                #end loop
+                
+            if (DEBUG):   
+                print "\nSell dict:",sellPrice
+                print "\nBuy dict:",buyPrice
+                print "\nTotal volume on market: ",numberOfSellItems," Sell + ",numberOfBuyItems
             
             if (numberOfSellItems > 0):
                 prices = sorted(sellPrice.items(), key=lambda x: x[0]);
@@ -159,7 +213,7 @@ def worker(job_json):
                 bought=0;
                 boughtPrice=0;
                 if (DEBUG):
-                    print "Prices (sorted):\n",prices
+                    print "Sell Prices (sorted):\n",prices
                     print "Start buying process!"
                 while (bought < fivePercentOfTotal):
                     pop = prices.pop(0)
@@ -183,15 +237,49 @@ def worker(job_json):
                 fiveAverageSellPrice = boughtPrice/bought;
                 if (DEBUG):
                     print "Average selling price (first 5% of volume):",fiveAverageSellPrice
-                values = [
-                    fiveAverageSellPrice,
-                    numberOfSellItems,
-                    fivePercentOfTotal,
-                    generatedAt]
-                mc.set('emdr-region:'+str(rowsets['regionID'])+'-typeID:'+str(typeID), simplejson.dumps(values));
+                data['orders']['sell'] = [
+                    "%.2f" % fiveAverageSellPrice,
+                    numberOfSellItems]
+
+            if (numberOfBuyItems > 0):
+                prices = sorted(buyPrice.items(), key=lambda x: x[0], reverse=True);
+                fivePercentOfTotal = max(int(numberOfBuyItems*0.05),1);
+                fivePercentPrice=0;
+                bought=0;
+                boughtPrice=0;
                 if (DEBUG):
-                    print 'SUCCESS: emdr-region:'+str(rowsets['regionID'])+'-typeID:'+str(typeID)
-                f += 1
+                    print "Buy Prices (sorted):\n",prices
+                    print "Start buying process!"
+                while (bought < fivePercentOfTotal):
+                    pop = prices.pop(0)
+                    fivePercentPrice = pop[0]
+                    if (DEBUG):
+                        print "\tBought: ",bought,"/",fivePercentOfTotal
+                        print "\t\tNext pop: ",fivePercentPrice," ISK, vol: ",pop[1]
+                    
+                    if (fivePercentOfTotal > ( bought + buyPrice[fivePercentPrice])):
+                        boughtPrice += buyPrice[fivePercentPrice]*fivePercentPrice;
+                        bought += buyPrice[fivePercentPrice];
+                        if (DEBUG):
+                            print "\t\tHave not met goal. Bought:",bought
+                    else:
+                        diff = fivePercentOfTotal - bought;
+                        boughtPrice += fivePercentPrice*diff;
+                        bought = fivePercentOfTotal;
+                        if (DEBUG):
+                            print "\t\tGoal met. Bought:",bought
+                
+                fiveAverageBuyPrice = boughtPrice/bought;
+                if (DEBUG):
+                    print "Average buying price (first 5% of volume):",fiveAverageBuyPrice
+                data['orders']['buy'] = [
+                    "%.2f" % fiveAverageBuyPrice,
+                    numberOfBuyItems]
+            
+            mc.set('emdr-'+str(VERSION)+'-'+str(rowsets['regionID'])+'-'+str(typeID), simplejson.dumps(data));
+            if (DEBUG):
+                print 'SUCCESS: emdr-'+str(VERSION)+'-'+str(rowsets['regionID'])+'-'+str(typeID),simplejson.dumps(data)
+            f += 1
            
 
 if __name__ == '__main__':
