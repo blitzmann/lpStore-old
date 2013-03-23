@@ -14,6 +14,9 @@ if (isset($_GET['corpID'])) {
         $corpID = filter_input(INPUT_GET, 'corpID', FILTER_VALIDATE_INT);
         $regionID = filter_input(INPUT_GET, 'regionID', FILTER_VALIDATE_INT);
 
+        if (!$regionID || !array_key_exists($regionID, $regions)) {
+            $regionID = 10000002; } //default to Jita
+            
         $name = $DB->q1('SELECT itemName FROM invUniqueNames WHERE itemID = ? AND groupID = 2', array($corpID));
        
         if ($name == false) {
@@ -27,7 +30,7 @@ if (isset($_GET['corpID'])) {
             ORDER BY    a.`lpCost`, a.iskCost, b.typeName', array($corpID));
             
         echo "
-            <div id='content-header'><h1>".$name."</h1></div><div>
+            <div id='content-header'><h1>".$name." <small>".$regions[$regionID]."</small></h1></div><div>
     <div class='container-fluid'>
     <div class='row-fluid'>
             <table class='table table-bordered table-condensed table-striped' id='lpOffers'>
@@ -56,7 +59,6 @@ if (isset($_GET['corpID'])) {
             $req = array();
             $cached = false;
             // get pricing info on item
-            // todo: there's a better way to handle no cache and the prices for such. Find it
             if ($price = $memcache->get('emdr-'.$emdrVersion.'-'.$regionID.'-'.$offer['typeID'])) {
                 $cached = true;
                 $price = json_decode($price, true);
@@ -401,7 +403,7 @@ else {
         <select class='xlarge' name='regionID'>
         <?php
             
-            foreach ($regions AS $name => $id){
+            foreach ($regions AS $id => $name){
                 echo "<option value='".$id."'>".$name."</option>";
             }
         ?>

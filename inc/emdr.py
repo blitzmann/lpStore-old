@@ -29,7 +29,8 @@ ORDERS  = True
 HISTORY = False # not implemented
 
 ## todo: customizable key format
-## todo: use of mysql tables for storage / backup
+## todo: use of mysql tables for storage / backup, or possibly something other than memcache
+mc = pylibmc.Client(["127.0.0.1"], binary=True, behaviors={"tcp_nodelay": True, "ketama": True})
 
 class Printer():
     """
@@ -37,14 +38,10 @@ class Printer():
     """
  
     def __init__(self,data):
- 
         sys.stdout.write("\r\x1b[K"+data.__str__())
         sys.stdout.flush()
 
-mc = pylibmc.Client(["127.0.0.1"], binary=True, behaviors={"tcp_nodelay": True, "ketama": True})
-
-
-
+        
 def main():
     """
     The main flow of the application.
@@ -85,7 +82,6 @@ def worker(job_json):
     '''
     todo:   look into putting it into mysql, loading mysql into memcache
             look into logging to files per type id
-            remove `fivePercentOfTotal`? Can just calculate that from total
             recurse into rowsets: every feed is not necessarily 1 typeID (though it usually is)
     '''
     global f;
@@ -151,7 +147,8 @@ def worker(job_json):
             'buy': [fiveAverageBuyPrice, numberOfBuyItems] }
         'history': [] }
     '''
-    if (REGIONS == False or (REGIONS != False and rowsets['regionID'] in regionDict.values())):
+   
+    if (REGIONS == False or (REGIONS != False and str(rowsets['regionID']) in regionDict)):
         cached = mc.get('emdr-'+str(VERSION)+'-'+str(rowsets['regionID'])+'-'+str(typeID));
         
         # If data has been cached for this item, check the dates. If dates match, skip

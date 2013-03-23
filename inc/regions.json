@@ -1,5 +1,7 @@
-{"The Forge (Jita)":   10000002, 
-"Sinq Laison (Dodixie)": 10000032,
-"Domain (Amarr)":   10000043,
-"Metropolis (Hek)":     10000042,
-"Heimatar (Rens)":    10000030}
+{
+"10000002": "The Forge (Jita)", 
+"10000032": "Sinq Laison (Dodixie)",
+"10000043": "Domain (Amarr)",
+"10000042": "Metropolis (Hek)",
+"10000030": "Heimatar (Rens)"
+}
