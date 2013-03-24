@@ -31,43 +31,48 @@ if (isset($_GET['corpID'])) {
             
         echo "
             <div id='content-header'><h1>".$name." <small>".$regions[$regionID]."</small></h1></div><div>
-    <div class='container-fluid'>
-    <div class='row-fluid'>
-            <table class='table table-bordered table-condensed table-striped' id='lpOffers'>
-                <colgroup>
-                    <col span='4' class='lpData' />
-                    <col span='4' class='lpCalculated' />
-                </colgroup>
-                <thead> 
-                <tr><th>LP Offer</th><th>LP Cost</th><th>ISK Cost</th><th>Required Items</th><th>Total Costs</th><th>Profit</th><th>Total Vol</th><th>LP/ISK</th></thead><tbody> ";
-        
-        // get required items for all of store
-        // this prevents costly loop, which shaved off about 1 sec processing time for the large LP Stores
-
-        
-        $reqItemsContain = array();
+                <div class='container-fluid'>
+                <div class='row-fluid'>
+                    <table class='table table-bordered table-condensed table-striped' id='lpOffers'>
+                        <colgroup>
+                            <col span='4' class='lpData' />
+                            <col span='4' class='lpCalculated' />
+                        </colgroup>
+                        <thead> 
+                        <tr><th>LP Offer</th><th>LP Cost</th><th>ISK Cost</th><th>Required Items</th><th>Total Costs</th><th>Profit</th><th>Total Vol</th><th>LP/ISK</th></thead><tbody> ";
+                
+        /*
+            Get required items for all of store's offers. This prevents costly 
+            loop later (in main offer loop), which shaved off about 1 sec 
+            exec time for the large LP Stores
+        */
+        $reqContainer = array();
         foreach ($DB->qa('
-                SELECT      a.typeID, a.quantity, b.typeName, a.parentID
-                FROM        lpRequiredItems a
-                INNER JOIN  invTypes b ON (b.typeID = a.typeID)
-                INNER JOIN  lpStore c ON (c.storeID = a.parentID)
-                WHERE       c.corporationID = ?', array($corpID)) AS $item) {  
-                $reqItemsContain[$item['parentID']][] = $item; }                
+            SELECT      a.typeID, a.quantity, b.typeName, a.parentID
+            FROM        lpRequiredItems a
+            INNER JOIN  invTypes b ON (b.typeID = a.typeID)
+            INNER JOIN  lpStore c ON (c.storeID = a.parentID)
+            WHERE       c.corporationID = ?', array($corpID)) AS $item) {  
+                $reqContainer[$item['parentID']][] = $item; }                
         
         foreach ($offers AS $offer){
             $totalCost = $offer['iskCost'];
-            $req = array();
-            $cached = false;
+            $req       = array(); // array that holds name of reuired items
+            $cached    = false;   // flag
+            $bpc       = false;   // flag
+            
             // get pricing info on item
             if ($price = $memcache->get('emdr-'.$emdrVersion.'-'.$regionID.'-'.$offer['typeID'])) {
-                $cached = true;
-                $price = json_decode($price, true);
+                $cached   = true;
+                $price    = json_decode($price, true);
                 $timeDiff = (time() - $price['orders']['generatedAt'])/60/60; // time difference in hours
             }
 
             if ($cached) {
                 if (round($timeDiff) >= 100) {
                     $label = ">99"; }
+                else if ($timeDiff < 1) {
+                    $label = "<1"; }
                 else {
                     $label = round($timeDiff); }
                 
@@ -81,13 +86,16 @@ if (isset($_GET['corpID'])) {
             else {
                 $label = "N/A";
                 $fresh = array('default', 'Price has not yet been cached'); }
-                
-            if (isset($reqItemsContain[$offer['storeID']])){
-                $reqItems = $reqItemsContain[$offer['storeID']];}
-            else { $reqItems = array(); }
+            
+            // set required items
+            if (isset($reqContainer[$offer['storeID']])){
+                $reqItems = $reqContainer[$offer['storeID']];}
+            else {
+                $reqItems = array(); }
 
             $manReqItems = array();
                         
+            // Get pricing info for required items
             // todo: should we parse pricing data for required items with no cache of their own?
             foreach ($reqItems AS $reqItem) {
                 if ($reqItem['quantity'] <= 0) {
@@ -102,19 +110,20 @@ if (isset($_GET['corpID'])) {
             
             // Blueprints are special fucking buterflies
             if (strstr($offer['typeName'], " Blueprint")) {
+                $bpc       = true;
                 $name      = "1 x ".$offer['typeName']." Copy (".$offer['quantity']." run".($offer['quantity'] > 1 ? "s" : null).")"; 
                 $label     = 'BP';
                 $fresh     = array('info', 'Calculating with manufactured item');
-                $manItem   = str_replace(' Blueprint', '', $offer['typeName']); // Get item that the BPC makes
                 $manTypeID = $DB->q1(' 
                     SELECT      ProductTypeID  
                     FROM        invBlueprintTypes
                     WHERE       blueprintTypeID = ?', array($offer['typeID']));
                 
                 // set pricing info as the manufactured item
-                if (!($price = $memcache->get('emdr-'.$emdrVersion.'-'.$regionID.'-'.$manTypeID))) {
-                    $price = json_encode(array('orders' => array('generatedAt' => 0, 'sell'=>array(0,0), 'buy'=>array(0,0)))); }
-                $price = json_decode($price, true);
+                if ($price = $memcache->get('emdr-'.$emdrVersion.'-'.$regionID.'-'.$manTypeID)) {
+                    $price  = json_decode($price, true); 
+                    $cached = true;
+                }
                 
                 // Here we merge bill of materials for blueprints (remembering to multiple qnt with # of BPC runs)
                 $manReqItems = array_merge(
@@ -177,8 +186,8 @@ if (isset($_GET['corpID'])) {
 						$totalCost = $totalCost + ($rprice['orders']['sell'][0] * $reqItem['quantity']);
 					}
 				}
+                // one day this will display them all, but for now, just note that materials are needed...
 				array_push($req, "Manufacturing Materials");
-				
             }     
             else {
                 $name = $offer['quantity']." x ".$offer['typeName']; }

@@ -176,6 +176,9 @@ form {
 /**** Misc *****
 /**************/
 
+dd {
+    margin-left: 2em; }
+
 #tooltip {
 	position: absolute;
 	display:none;
