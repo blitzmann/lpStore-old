@@ -22,6 +22,8 @@ $nav = array(
 	'mktScan.php' => array('barcode', 'Market Scanner'),
 	'pref.php' => array('cog', 'Preferences'));
 
+$projectStyle = '<strong>%s</strong>'; // how to style project names
+    
 // END USER CONFIGURATION
 
 $time = explode(' ', microtime());

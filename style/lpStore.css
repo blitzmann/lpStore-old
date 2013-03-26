@@ -32,7 +32,9 @@ form {
     margin-bottom: -10;
 }
 
-/* Header */
+/*****************
+/**** Header *****
+/****************/
 #header {
     height: 70px;
     box-shadow: 0 1px 0 #333333;
@@ -66,7 +68,9 @@ form {
 	font-size: 12px;
 }
 
-/* Sidebar */
+/******************
+/**** Sidebar *****
+/*****************/
 #navigation {
     display: block;
     float: left;
@@ -223,4 +227,8 @@ dd {
     cursor: help;
     width: 20px; 
     text-align: center;
+}
+
+.project {
+    font-family: "open sans";
 }
