@@ -16,8 +16,16 @@ h1, h2, h3, h4 , h5, h6, legend {
     font-family: "open sans condensed";
 }
 
-legend {
-        font-weight: bold;}
+h3, legend {
+    margin-bottom: 20px;
+    margin-top: 0px;
+    font-size: 21px;
+    border: 0;
+    border-bottom: 1px solid #e5e5e5;
+    font-weight: bold;
+}
+
+h4 {font-weight: normal;}
 
 
 form {
@@ -163,7 +171,7 @@ form {
     margin-bottom: 20px;
 }
 
-#content-header h1 {
+#content-header h2 {
     height: 70px;
     color: #555555;
     font-size: 28px;

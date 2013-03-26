@@ -1,5 +1,5 @@
 <?php include 'head.php'; ?>
- <div id='content-header'><h1>About</h1></div><div>
+ <div id='content-header'><h2>About</h2></div><div>
     <div class='container-fluid'>
     <div class='row-fluid'>
 

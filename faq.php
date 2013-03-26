@@ -1,5 +1,5 @@
 <?php include 'head.php'; ?>
- <div id='content-header'><h1>FAQ</h1></div><div>
+ <div id='content-header'><h2>FAQ</h2></div><div>
     <div class='container-fluid'>
     <div class='row-fluid'>
 <h3>What do the colored indictors mean?</h3>

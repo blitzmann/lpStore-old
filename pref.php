@@ -16,11 +16,10 @@ if (isset($_POST['region'])){
 require 'head.php'; 
 
 ?>
-<div id='content-header'><h1>Preferences</h1></div>
+<div id='content-header'><h2>Preferences</h2></div>
     <div class='container-fluid'>
     <div class='row-fluid'>
     <?php echo $ack; ?>
-	<div class='alert'><strong>Warning!</strong> Preferences are still poorly tested and implemented.</div>
 
     <form action='<?php echo $_SERVER['PHP_SELF']; ?>' method='post'>
     <fieldset>

@@ -31,7 +31,7 @@ if (isset($_GET['corpID'])) {
             ORDER BY    a.`lpCost`, a.iskCost, b.typeName', array($corpID));
             
         echo "
-            <div id='content-header'><h1>".$name." <small>".$regions[$regionID]." - ".ucfirst($marketMode)." Orders</small></h1></div><div>
+            <div id='content-header'><h2>".$name." <small>".$regions[$regionID]." - ".ucfirst($marketMode)." Orders</small></h2></div><div>
                 <div class='container-fluid'>
                 <div class='row-fluid'>
                     <table class='table table-bordered table-condensed table-striped' id='lpOffers'>
@@ -379,7 +379,7 @@ else {
 
     $totalVerified = count($verified);
 	echo "
-    <div id='content-header'><h1>Welcome to lpStore!</h1></div>
+    <div id='content-header'><h2>Welcome to lpStore!</h2></div>
     <div id='breadcrumb'></div>
     <div class='container-fluid'>
     <div class='row-fluid'>

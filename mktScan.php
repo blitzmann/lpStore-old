@@ -1,5 +1,5 @@
 <?php include 'head.php'; ?>
-<div id='content-header'><h1>Market Scanner</h1></div><div>
+<div id='content-header'><h2>Market Scanner</h2></div><div>
     <div class='container-fluid'>
     <div class='row-fluid'>
     <div class='alert'><strong>Warning!</strong> This feature is still in development. Please check back later!</div>
