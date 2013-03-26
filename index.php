@@ -31,7 +31,7 @@ if (isset($_GET['corpID'])) {
             ORDER BY    a.`lpCost`, a.iskCost, b.typeName', array($corpID));
             
         echo "
-            <div id='content-header'><h2>".$name." <small>".$regions[$regionID]." - ".ucfirst($marketMode)." Orders</small></h2></div><div>
+            <div id='content-header'><h2>".$name." <small>".$regions[$regionID]." - ".ucfirst($marketMode)." Orders</small></h2></div>
                 <div class='container-fluid'>
                 <div class='row-fluid'>
                     <table class='table table-bordered table-condensed table-striped' id='lpOffers'>
@@ -416,7 +416,7 @@ else {
     <?php 
 }
 
-echo "</div>";
+echo "</div></div>";
 include 'foot.php';
 
 ?>

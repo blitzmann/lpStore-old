@@ -1,5 +1,5 @@
-<?php include 'head.php'; ?>
- <div id='content-header'><h2>FAQ</h2></div><div>
+<?php require 'head.php'; ?>
+ <div id='content-header'><h2>FAQ</h2></div>
     <div class='container-fluid'>
     <div class='row-fluid'>
 <h3>What do the colored indictors mean?</h3>
@@ -26,5 +26,6 @@
 <p>Due to their nature, blueprint copies are calculated slightly differently. The item that the blueprint manufactures substitutes all pricing information for the offer. The total cost also includes the materials needed to manufacture the item, however manufacturing materials are not yet affected by player skill (future feature). Otherwise, blueprint copies are calculated much the same as all other offers.
 <h3>What is Total Volume</h3>
 <p>Total Volume is currently the total quantity, or volume, of items for sale on the market. This is handy to guage demand / market absorbtion of the item. If an item has a total volume of 2, that means there are only 2 of that item being sold. It's generally recommended to stick with items with high volume and are known to move (Datacores, Navy Cap Boosters, Ammo), however if you know what you're doing you can find a niche in an item with little movement and potentially make much more.</p>
+</div>
 </div>
 <?php include 'foot.php'; ?>
