@@ -1,14 +1,4 @@
-<?php
-require 'config.php';
-
-$nav = array(
-    'index.php' => array('home', 'LP Stores'),
-	'about.php' => array('question-sign', 'About'),
-	'faq.php'   => array('pencil', 'FAQ'),
-	'mktScan.php' => array('barcode', 'Market Scanner'));
-
-$page = basename($_SERVER['PHP_SELF']);
-?>
+<?php require_once 'config.php'; ?>
 <html>
 <head>
     <title>lpStore - The place for up-to-date LP-ISK conversion</title>
@@ -19,22 +9,19 @@ $page = basename($_SERVER['PHP_SELF']);
     <link href="style/ColVis.css" rel="stylesheet" />
 
 
-	<link href="datatables/media/css/jquery.dataTables.css" rel="stylesheet" />
-
-    <script src="js/jquery-1.9.0.js"></script>
-	<script src="js/jquery-ui-1.10.0.custom.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.0/jquery-ui.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/lpStore.js"></script>
 
     <script src="js/jquery.dataTables.min.js"></script> 
     <script src="js/jquery.dataTables.ColVis.min.js"></script> 
     <script src="js/jquery.dataTables.FixedHeader.min.js"></script> 
-
-
 </head>
+<?php ob_flush(); ?>
 <body>
 <div id="header">
-    <h1><a href="index.php">lpStore</a></h1>  
+    <h1><a href="index.php">lpStore</a><small>beta</small></h1>  
 </div>
 <div id='navigation'>
     <div id='sidebar-search'>

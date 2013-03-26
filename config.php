@@ -1,5 +1,7 @@
 <?php
 
+// config.php - handles all initial configuration, does not produce any output
+
 ob_start("ob_gzhandler");
 
 include 'DB.php';
@@ -8,12 +10,54 @@ $DB = new DB(parse_ini_file('/home/http/private/db-eve.ini'));
 $regions = json_decode(file_get_contents('inc/regions.json'),true);
 $emdrVersion = 1;
 
-$time = microtime();
-$time = explode(' ', $time);
-$time = $time[1] + $time[0];
-$start = $time;
+$defaultPrefs = array(
+    'region'     => 10000002, 
+    'marketMode' => 'sell'
+);
+
+$nav = array(
+    'index.php' => array('home', 'LP Stores'),
+	'about.php' => array('question-sign', 'About'),
+	'faq.php'   => array('pencil', 'FAQ'),
+	'mktScan.php' => array('barcode', 'Market Scanner'),
+	'pref.php' => array('cog', 'Preferences'));
+
+// END USER CONFIGURATION
+
+$time = explode(' ', microtime());
+$start = $time[1] + $time[0];
 
 $memcache = new Memcache;
 $memcache->connect('localhost', 11211) or die ("Could not connect to Memcache server");
+
+$page = basename($_SERVER['PHP_SELF']);
+
+function testRegionInput($input) {
+    global $defaultPrefs, $regions;
+    if (isset($regions[$input])) {
+        return (int)$input; }
+    return $defaultPrefs['region'];
+}    
+
+function testMarketModeInput($input) {
+    global $defaultPrefs;
+    if ($input == 'sell' || $input == 'buy') {
+        return $input; }
+    return $defaultPrefs['marketMode'];
+}    
+
+$filterArgs = array(
+    'region'    => array(
+                'filter' => FILTER_CALLBACK,
+                'options'=>'testRegionInput'),
+    'marketMode' => array(
+                'filter' => FILTER_CALLBACK,
+                'options'=>'testMarketModeInput'),
+);
+
+if (isset($_COOKIE['preferences'])){
+	$prefs = filter_var_array(unserialize($_COOKIE['preferences']), $filterArgs); }
+else {
+	$prefs = $defaultPrefs; }
 
 ?>

@@ -11,8 +11,9 @@ foreach ($DB->qa("SELECT * FROM `lpVerified`", array()) AS $corp) {
 
 if (isset($_GET['corpID'])) {
     try {
-        $corpID = filter_input(INPUT_GET, 'corpID', FILTER_VALIDATE_INT);
-        $regionID = filter_input(INPUT_GET, 'regionID', FILTER_VALIDATE_INT);
+        $corpID     = filter_input(INPUT_GET, 'corpID', FILTER_VALIDATE_INT);
+        $regionID   = $prefs['region'];
+		$marketMode = $prefs['marketMode'];
 
         if (!$regionID || !array_key_exists($regionID, $regions)) {
             $regionID = 10000002; } //default to Jita
@@ -30,7 +31,7 @@ if (isset($_GET['corpID'])) {
             ORDER BY    a.`lpCost`, a.iskCost, b.typeName', array($corpID));
             
         echo "
-            <div id='content-header'><h1>".$name." <small>".$regions[$regionID]."</small></h1></div><div>
+            <div id='content-header'><h1>".$name." <small>".$regions[$regionID]." - ".ucfirst($marketMode)." Orders</small></h1></div><div>
                 <div class='container-fluid'>
                 <div class='row-fluid'>
                     <table class='table table-bordered table-condensed table-striped' id='lpOffers'>
@@ -196,7 +197,7 @@ if (isset($_GET['corpID'])) {
                 $lp2isk = 'N/A';
                 $profit = 0; }
             else {
-                $profit = ($price['orders']['sell'][0]*$offer['quantity'] - $totalCost);
+                $profit = ($price['orders'][$marketMode][0]*$offer['quantity'] - $totalCost);
                 $lp2isk = $profit / $offer['lpCost']; 
             }
 
@@ -409,14 +410,7 @@ else {
             }
         ?>
         </select>
-        <select class='xlarge' name='regionID'>
-        <?php
-            
-            foreach ($regions AS $id => $name){
-                echo "<option value='".$id."'>".$name."</option>";
-            }
-        ?>
-        </select>
+
         <input class="btn btn-mini btn-primary" type="submit" value="Go!" />
 	</form>
     <?php 
