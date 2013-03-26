@@ -1,0 +1,6 @@
+; Edit this to the correct values, rename to db-eve.ini, then move it somewhere 
+; inaccessible from the http side (preferrably out of web root)
+[db]
+dsn      = "mysql:dbname=EVEDB"
+uname    = "user"
+passwd   = "password"
