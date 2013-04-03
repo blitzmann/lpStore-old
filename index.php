@@ -35,12 +35,8 @@ if (isset($_GET['corpID'])) {
                 <div class='container-fluid'>
                 <div class='row-fluid'>
                     <table class='table table-bordered table-condensed table-striped' id='lpOffers'>
-                        <colgroup>
-                            <col span='4' class='lpData' />
-                            <col span='4' class='lpCalculated' />
-                        </colgroup>
-                        <thead> 
-                        <tr><th>LP Offer</th><th>LP Cost</th><th>ISK Cost</th><th>Required Items</th><th>Total Costs</th><th>Profit</th><th>Total Vol</th><th>LP/ISK</th></thead><tbody> ";
+                        <thead><tr><th>LP Offer</th><th>LP Cost</th><th>ISK Cost</th><th>Required Items</th><th>Total Costs</th><th>Profit</th><th>Total Vol</th><th>LP/ISK</th></thead>
+                        <tbody>";
                 
         /*
             Get required items for all of store's offers. This prevents costly 
@@ -204,7 +200,7 @@ if (isset($_GET['corpID'])) {
             echo "
             <tr id='lp-$offer[typeID]'>
                 <td><span class='label label-".$fresh[0]." pop lp-label' 
-                    data-content='".($fresh[0] !== 'default' ? "Reported: ".round($timeDiff)."h ago<br />Price: ".number_format($price['orders']['sell'][0], 2) : null)."' 
+                    data-content='".($fresh[0] !== 'default' ? "Reported: ".round($timeDiff)."h ago<br />Price: ".number_format($price['orders'][$marketMode][0], 2) : null)."' 
                     rel='popover' 
                     data-placement='right' 
                     data-original-title='".$fresh[1]."' 
@@ -224,154 +220,6 @@ if (isset($_GET['corpID'])) {
         <p>".$e->getMessage()."</p>";
 	}	
 }
-else if (isset($_GET['storeID'])) {
-
-    try {
-        $storeID = filter_input(INPUT_GET, 'storeID', FILTER_VALIDATE_INT);
-        $name = $DB->q1('SELECT itemName FROM invUniqueNames WHERE itemID = ? AND groupID = 2', array($corpID));
-
-        $offer = $DB->qa('
-            SELECT      a.*, b.typeName  
-            FROM        lpStore a
-            INNER JOIN  invTypes b ON (a.typeID = b.typeID)
-            WHERE       a.storeID = ?
-            LIMIT 0, 1', array($storeID));
-        
-        if ($offer == false) {
-            throw new Exception('Corporation ID does not exist within database.'); }
-        
-        $reqItems = $DB->qa('
-                SELECT      a.typeID, a.quantity, b.typeName
-                FROM        lpRequiredItems a
-                INNER JOIN  invTypes b ON (b.typeID = a.typeID)
-                WHERE       a.parentID = ?', array($offer['storeID']));
-
-        $manReqItems = array();
-            
-        echo "<div id='content-header'><h1>$offer[typeName]</h1></div><div id='breadcrumb'></div>
-    <div class='container-fluid'>
-    <div class='row-fluid'></div><table><tr><th>Qty</th><th>Item</th><th>Price</th><th>Subtotal</th></tr>";            
-        // Blueprints are special fucking buterflies
-        if (strstr($offer['typeName'], " Blueprint")) {
-            $manItem   = str_replace(' Blueprint', '', $offer['typeName']); // Get item that the BPC makes
-            $manTypeID = $DB->q1(' 
-                SELECT      typeID  
-                FROM        invTypes
-                WHERE       typeName LIKE ?', array($manItem));
-            
-            // set pricing info as the manufactured item
-            if (!($price = $memcache->get('emdr-'.$emdrVersion.'-'.$regionID.'-'.$manTypeID))) {
-                $price = json_encode(array('orders' => array('generatedAt' => 0, 'sell'=>array(0,0), 'buy'=>array(0,0)))); }
-            $price = json_decode($price, true);
-            
-            // Here we merge bill of materials for blueprints (remembering to multiple qnt with # of BPC runs)
-            $manReqItems = array_merge(
-                // Get minerals needed
-                $DB->qa('
-                    SELECT t.typeID,
-                           t.typeName,
-                           ROUND(greatest(0,sum(t.quantity)) * (1 + (b.wasteFactor / 100))) * ? AS quantity
-                    FROM
-                      (SELECT invTypes.typeid typeID,
-                              invTypes.typeName typeName,
-                              quantity
-                       FROM invTypes,
-                            invTypeMaterials,
-                            invBlueprintTypes
-                       WHERE invTypeMaterials.materialTypeID=invTypes.typeID
-                        AND invBlueprintTypes.productTypeID = invTypeMaterials.typeID
-
-                         AND invTypeMaterials.TypeID=?
-                       UNION 
-                       SELECT invTypes.typeid typeid,
-                                    invTypes.typeName name,
-                                    invTypeMaterials.quantity*r.quantity*-1 quantity
-                       FROM invTypes,
-                            invTypeMaterials,
-                            ramTypeRequirements r,
-                            invBlueprintTypes bt
-                       WHERE invTypeMaterials.materialTypeID=invTypes.typeID
-                         AND invTypeMaterials.TypeID =r.requiredTypeID
-                         AND r.typeID = bt.blueprintTypeID
-                         AND r.activityID = 1
-                         AND bt.productTypeID=?
-                         AND r.recycle=1) t
-                    INNER JOIN invBlueprintTypes b ON (b.productTypeID = ?)
-
-                    GROUP BY t.typeid,
-                             t.typeName', array($offer['quantity'], $manTypeID, $manTypeID, $manTypeID)),
-                // Get extra items needed
-                $DB->qa('
-                    SELECT t.typeID AS    typeID,
-                        t.typeName AS     typeName,
-                        (r.quantity * ?) AS quantity
-                    FROM ramTypeRequirements r,
-                        invTypes t,
-                        invBlueprintTypes bt,
-                        invGroups g
-                    WHERE r.requiredTypeID = t.typeID
-                    AND r.typeID = bt.blueprintTypeID
-                    AND r.activityID = 1
-                    AND bt.productTypeID = ?
-                    AND g.categoryID != 16
-                    AND t.groupID = g.groupID', array($offer['quantity'], $manTypeID))); // append material needs to req items      
-            
-           foreach ($manReqItems AS $reqItem) {
-                if ($reqItem['quantity'] <= 0) {
-                    continue; }
-
-                if (!($rprice = $memcache->get('emdr-'.$emdrVersion.'-'.$regionID.'-'.$reqItem['typeID']))) {
-                    $rprice = json_encode(array(0,0,0,0)); }
-
-                $rprice = json_decode($rprice);
-                $totalCost = $totalCost + ($rprice[0] * $reqItem['quantity']);
-            }
-            array_push($req, "Manufacturing Materials");
-        }     
-        else {
-            $name = $offer['quantity']." x ".$offer['typeName']; }
-    } catch (Exception $e) {
-		echo "<h3>Error</h3>
-        <p>".$e->getMessage()."</p>";
-	}	
-}
-else if (isset($_GET['lpTypeID'])){
-
-	$name = $DB->q1('SELECT typeName FROM invTypes WHERE typeID = ?', array($_GET['lpTypeID']));
-	$offers = $DB->qa('
-		SELECT a . * , b.itemName AS corpName, `reqItems`
-		FROM  `lpStore` a
-		INNER JOIN invUniqueNames b ON ( a.corporationID = b.itemID AND b.groupID =2 ) 
-		LEFT JOIN
-		(
-		  SELECT  z.parentID,
-			 GROUP_CONCAT( CONCAT( z.quantity,  " x ", y.typeName ) ) AS  `reqItems`
-		  FROM lpRequiredItems z
-		  INNER JOIN invTypes y ON (z.typeID = y.typeID)
-		  GROUP BY z.parentID
-		) c ON ( a.storeID = c.parentID )
-		WHERE a.typeID = ?
-		ORDER BY  `a`.`lpCost`, corpName ASC
-		', array($_GET['lpTypeID']));
-		
-	echo "<h3>$name</h3><table class='table table-bordered table-condensed table-striped'>
-	<tr><th>Corporation</th><th>LP Cost</th><th>ISK Cost</th><th>Required Items</th>";
-    if (!($price = $memcache->get('emdr-'.$emdrVersion.'-'.$regionID.'-'.$_GET['lpTypeID']))) {
-            $price = json_encode(array('orders' => array('generatedAt' => 0, 'sell'=>array(0,0), 'buy'=>array(0,0)))); }
-    $price = json_decode($price, true);
-
-	foreach ($offers AS $offer){
-        
-        
-		echo "<tr>
-        <td><small>(<a href='#' class='remove-row'>remove</a>)</small> $offer[corpName]<small>  (sID: $offer[storeID])</small>".(in_array($offer['corporationID'], $verified) ? "<span style='float:right;color:green;'><b>Verified</b></span>" : null)."</td>
-        <td>".number_format($offer['lpCost'])."</td>
-        <td>".number_format($offer['iskCost'])."</td>
-        <td>".implode("<br />", explode(',', $offer['reqItems']))."</td>
-        </tr>";
-	}
-	echo "</table>";
-}
 else {
     $totalCorps = $DB->q1("SELECT COUNT( DISTINCT corporationID )  FROM `lpStore`", array());
     $largest    = $DB->qa("SELECT COUNT(typeID) AS cnt, b.itemName FROM `lpStore` a INNER JOIN invUniqueNames b ON ( a.corporationID = b.itemID AND b.groupID =2 ) GROUP BY a.corporationID ORDER BY cnt DESC LIMIT 0,1", array());
@@ -383,40 +231,49 @@ else {
     <div id='breadcrumb'></div>
     <div class='container-fluid'>
     <div class='row-fluid'>
-        <noscript><div class='alert'> 
-            <button type='button' class='close' data-dismiss='alert'>&times;</button>
-            <strong>Warning!</strong> This site is best used with JavaScript enabled! Please <a href='http://www.enable-javascript.com/'>enable it via your browser settings</a>.
-        </div></noscript>
-    <p>Please select the desired corporation to the left to browse their store. Please note that there is no guarentee of data - the LP Store may have missing, incomplete, or additional data that does not correctly represent the actual data. This is because <span class='project'>lpStore</span> operates on user-collected data, and much of it was outdated before I got to it. I'm currently in the process of manually verifying the LP Stores throughout the game, however, it is time consuming, and will take many months before I verify them all. Up-to-date information out the backend data can be found <a href='https://forums.eveonline.com/default.aspx?g=posts&t=197115'>at this EVE-ONLINE forum thread.</a></p>
-    <ul>
-    <li><a href='verified.php'>Verified</a> $totalVerified / $totalCorps corps (".round(($totalVerified / $totalCorps) * 100, 2)."%)</li>
-    <li>Largest LP Store: ".$largest[0]['itemName']." (".$largest[0]['cnt']." LP Offers)</li>
-    <li>Smallest LP Store: ".$smallest[0]['itemName']." (".$smallest[0]['cnt']." LP Offers)</li>
-    </ul>
-    ";?>
-    <form style='' class="form-horizontal" id="corpForm" name="corpForm" action="index.php"  method="get">
-
-        <select class='xlarge' name='corpID'>
-        <?php
-            $results = $DB->qa('
-                SELECT a.*, b.itemName 
-                FROM lpStore a 
-                INNER JOIN invUniqueNames b ON (a.corporationID = b.itemID AND b.groupID = 2) 
-                GROUP BY a.corporationID 
-                ORDER BY b.itemName ASC', array());
-        
-            foreach ($results AS $corp){
-                echo "<option ".(in_array($corp['corporationID'], $verified) ? " style='background-color:lightgreen !important;'" : null )." value='".$corp['corporationID']."'>".$corp['itemName']."</option>";
-            }
-        ?>
-        </select>
-
-        <input class="btn btn-mini btn-primary" type="submit" value="Go!" />
-	</form>
-    <?php 
+        <noscript>
+            <div class='alert'> 
+                <button type='button' class='close' data-dismiss='alert'>&times;</button>
+                <strong>Warning!</strong> This site is best used with JavaScript enabled! Please <a href='http://www.enable-javascript.com/'>enable it via your browser settings</a>.
+            </div>
+        </noscript>
+        <div class='span8'>
+            <p>Please select the desired corporation to the right to browse their store. Green backgrounds indicate corporations that have had their LP Store Offers verified, and thus should represent data found in-game. Please note that there is no guarentee of the data - the LP Stores may have missing, incomplete, or additional data that does not correctly represent the actual data found in-game. This is because <span class='project'>lpStore</span> operates on user-collected data, much of which was outdated beforehand. It's currently on the rocess of being updated, but this is an ongoing process. Up-to-date information out the backend data can be found <a href='https://forums.eveonline.com/default.aspx?g=posts&t=197115'>at this EVE-ONLINE forum thread.</a></p>
+        </div>
+        <div class='span2 offset1'>
+            <form style='' id='corpForm' name='corpForm' action='index.php'  method='get'>
+            <select class='large' style='width: 100%;' name='corpID'>";
+                $results = $DB->qa('
+                    SELECT a.*, b.itemName 
+                    FROM lpStore a 
+                    INNER JOIN invUniqueNames b ON (a.corporationID = b.itemID AND b.groupID = 2) 
+                    GROUP BY a.corporationID 
+                    ORDER BY b.itemName ASC', array());
+            
+                foreach ($results AS $corp){
+                    echo "
+                <option ".(in_array($corp['corporationID'], $verified) ? " style='background-color:lightgreen !important;'" : null )." value='".$corp['corporationID']."'>".$corp['itemName']."</option>";
+                }
+            echo "
+            </select>
+            <button type='submit' class='btn btn-block btn-primary'>Go!</button>
+           </form>
+        </div>
+    </div>
+    
+    <div class='row-fluid'>
+        <div class='span12'>
+            <ul class='lpStats'>
+                <li><strong>".$totalCorps."</strong> LP Stores</li>
+                <li><strong>".round(($totalVerified / $totalCorps) * 100, 0)."%</strong> Stores Verified</li>
+                <li><strong>".$largest[0]['cnt']."</strong> Largest Store</li>
+                <li><strong>".$smallest[0]['cnt']."</strong> Smallest Store</li>
+            </ul>
+        </div>
+    </div>"; 
 }
 
-echo "</div></div>";
+echo "</div>";
 include 'foot.php';
 
 ?>

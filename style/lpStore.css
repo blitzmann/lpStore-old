@@ -17,16 +17,20 @@ h1, h2, h3, h4 , h5, h6, legend {
 }
 
 h3, legend {
+    
     margin-bottom: 20px;
     margin-top: 0px;
     font-size: 21px;
     border: 0;
     border-bottom: 1px solid #e5e5e5;
     font-weight: bold;
+    
 }
 
 h4 {font-weight: normal;}
 
+/*
+*/
 
 form {
     margin-bottom: -10;
@@ -190,9 +194,40 @@ form {
 /**************/
 #footer {
     padding: 1em;
-    border-top: 1px solid #555555;
 	text-align: center;
 	color: #777777;
+}
+
+/*************************
+/**** Front Page Stats ***
+/************************/
+
+.lpStats {
+    display: inline-block;
+    list-style: none outside none;
+    margin: 20px 0 10px;
+    text-align: center;
+}
+.lpStats {
+	width: 100%;
+}
+.lpStats li {
+    padding: 13px 20px 10px;	
+    border: 1px solid transparent;
+    display: inline-block;
+    margin: 0 10px 20px;
+}
+
+.lpStats li strong {
+    font-size: 32px;
+    display: block;
+    margin-bottom: 0.3em; 
+}
+
+.lpStats li:hover {
+    background-color: #F5F5F5;
+    border: 1px solid #DDDDDD;
+    /* cursor: pointer; */
 }
 
 /***************
