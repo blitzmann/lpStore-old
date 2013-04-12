@@ -7,7 +7,7 @@ ob_start("ob_gzhandler");
 include 'DB.php';
 $DB = new DB(parse_ini_file('/home/http/private/db-eve.ini'));
 
-$regions = json_decode(file_get_contents('inc/regions.json'),true);
+$regions = json_decode(file_get_contents('emdr/regions.json'),true);
 $emdrVersion = 1;
 
 $defaultPrefs = array(
