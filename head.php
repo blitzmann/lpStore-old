@@ -1,7 +1,7 @@
 <?php require_once 'config.php'; ?>
 <html>
 <head>
-    <title>lpStore - The place for up-to-date LP-ISK conversion</title>
+    <title>lpStore</title>
 	<link href="style/bootstrap.min.css" rel="stylesheet" />
 	<link href="style/jquery-ui.min.css" rel="stylesheet" />
     <link href="style/lpStore.css" rel="stylesheet" />

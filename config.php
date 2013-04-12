@@ -29,8 +29,8 @@ $projectStyle = '<strong>%s</strong>'; // how to style project names
 $time = explode(' ', microtime());
 $start = $time[1] + $time[0];
 
-$memcache = new Memcache;
-$memcache->connect('localhost', 11211) or die ("Could not connect to Memcache server");
+$redis = new Redis();
+$redis->connect('localhost', 6379) or die ("Could not connect to Redis server");
 
 $page = basename($_SERVER['PHP_SELF']);
 

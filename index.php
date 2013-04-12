@@ -59,7 +59,7 @@ if (isset($_GET['corpID'])) {
             $bpc       = false;   // flag
             
             // get pricing info on item
-            if ($price = $memcache->get('emdr-'.$emdrVersion.'-'.$regionID.'-'.$offer['typeID'])) {
+            if ($price = $redis->get('emdr-'.$emdrVersion.'-'.$regionID.'-'.$offer['typeID'])) {
                 $cached   = true;
                 $price    = json_decode($price, true);
                 $timeDiff = (time() - $price['orders']['generatedAt'])/60/60; // time difference in hours
@@ -98,7 +98,7 @@ if (isset($_GET['corpID'])) {
                 if ($reqItem['quantity'] <= 0) {
                     continue; }
 
-				if ($rprice = $memcache->get('emdr-'.$emdrVersion.'-'.$regionID.'-'.$reqItem['typeID'])) {
+				if ($rprice = $redis->get('emdr-'.$emdrVersion.'-'.$regionID.'-'.$reqItem['typeID'])) {
 					$rprice = json_decode($rprice, true);
 					$totalCost = $totalCost + ($rprice['orders']['sell'][0] * $reqItem['quantity']);
 					array_push($req, $reqItem['quantity']." x ".$reqItem['typeName']); 
@@ -117,7 +117,7 @@ if (isset($_GET['corpID'])) {
                     WHERE       blueprintTypeID = ?', array($offer['typeID']));
                 
                 // set pricing info as the manufactured item
-                if ($price = $memcache->get('emdr-'.$emdrVersion.'-'.$regionID.'-'.$manTypeID)) {
+                if ($price = $redis->get('emdr-'.$emdrVersion.'-'.$regionID.'-'.$manTypeID)) {
                     $price  = json_decode($price, true); 
                     $cached = true;
                 }
@@ -178,7 +178,7 @@ if (isset($_GET['corpID'])) {
                     if ($reqItem['quantity'] <= 0) {
                         continue; }
 
-                    if ($rprice = $memcache->get('emdr-'.$emdrVersion.'-'.$regionID.'-'.$reqItem['typeID'])) {
+                    if ($rprice = $redis->get('emdr-'.$emdrVersion.'-'.$regionID.'-'.$reqItem['typeID'])) {
 						$rprice = json_decode($rprice, true);
 						$totalCost = $totalCost + ($rprice['orders']['sell'][0] * $reqItem['quantity']);
 					}
@@ -238,7 +238,7 @@ else {
             </div>
         </noscript>
         <div class='span8'>
-            <p>Please select the desired corporation to the right to browse their store. Green backgrounds indicate corporations that have had their LP Store Offers verified, and thus should represent data found in-game. Please note that there is no guarentee of the data - the LP Stores may have missing, incomplete, or additional data that does not correctly represent the actual data found in-game. This is because <span class='project'>lpStore</span> operates on user-collected data, much of which was outdated beforehand. It's currently on the rocess of being updated, but this is an ongoing process. Up-to-date information out the backend data can be found <a href='https://forums.eveonline.com/default.aspx?g=posts&t=197115'>at this EVE-ONLINE forum thread.</a></p>
+            <p>Please select the desired corporation to the right to browse their store. Green backgrounds indicate corporations that have had their LP Store Offers verified, and thus should represent data found in-game. Please note that there is no guarentee of the data - the LP Stores may have missing, incomplete, or additional data that does not correctly represent the actual data found in-game. This is because <span class='project'>lpStore</span> operates on user-collected data, much of which is outdated and needs to be verified. It's currently in the process of being verified, but this is an ongoing process. Up-to-date information out the backend data can be found <a href='https://forums.eveonline.com/default.aspx?g=posts&t=197115'>at this EVE-ONLINE forum thread.</a></p>
         </div>
         <div class='span2 offset1'>
             <form style='' id='corpForm' name='corpForm' action='index.php'  method='get'>
