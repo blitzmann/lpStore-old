@@ -35,7 +35,7 @@ if (isset($_GET['corpID'])) {
                 <div class='container-fluid'>
                 <div class='row-fluid'>
                     <table class='table table-bordered table-condensed table-striped' id='lpOffers'>
-                        <thead><tr><th>LP Offer</th><th>LP Cost</th><th>ISK Cost</th><th>Required Items</th><th>Total Costs</th><th>Profit</th><th>Total Vol</th><th>LP/ISK</th></thead>
+                        <thead><tr><th>LP Offer</th><th>LP Cost</th><th>ISK Cost</th><th>Required Items</th><th>Total Costs</th><th>Profit</th><th>Total Vol</th><th>ISK/LP</th></thead>
                         <tbody>";
                 
         /*
@@ -59,7 +59,7 @@ if (isset($_GET['corpID'])) {
             $bpc       = false;   // flag
             
             // get pricing info on item
-            if ($price = $redis->get('emdr-'.$emdrVersion.'-'.$regionID.'-'.$offer['typeID'])) {
+            if ($price = $emdr->get($offer['typeID'])) {
                 $cached   = true;
                 $price    = json_decode($price, true);
                 $timeDiff = (time() - $price['orders']['generatedAt'])/60/60; // time difference in hours
@@ -98,7 +98,7 @@ if (isset($_GET['corpID'])) {
                 if ($reqItem['quantity'] <= 0) {
                     continue; }
 
-				if ($rprice = $redis->get('emdr-'.$emdrVersion.'-'.$regionID.'-'.$reqItem['typeID'])) {
+				if ($rprice = $emdr->get($reqItem['typeID'])) {
 					$rprice = json_decode($rprice, true);
 					$totalCost = $totalCost + ($rprice['orders']['sell'][0] * $reqItem['quantity']);
 					array_push($req, $reqItem['quantity']." x ".$reqItem['typeName']); 
@@ -117,7 +117,7 @@ if (isset($_GET['corpID'])) {
                     WHERE       blueprintTypeID = ?', array($offer['typeID']));
                 
                 // set pricing info as the manufactured item
-                if ($price = $redis->get('emdr-'.$emdrVersion.'-'.$regionID.'-'.$manTypeID)) {
+                if ($price = $emdr->get($manTypeID)) {
                     $price  = json_decode($price, true); 
                     $cached = true;
                 }
@@ -178,7 +178,7 @@ if (isset($_GET['corpID'])) {
                     if ($reqItem['quantity'] <= 0) {
                         continue; }
 
-                    if ($rprice = $redis->get('emdr-'.$emdrVersion.'-'.$regionID.'-'.$reqItem['typeID'])) {
+                    if ($rprice = $emdr->get($reqItem['typeID'])) {
 						$rprice = json_decode($rprice, true);
 						$totalCost = $totalCost + ($rprice['orders']['sell'][0] * $reqItem['quantity']);
 					}

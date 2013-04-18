@@ -5,6 +5,8 @@
 ob_start("ob_gzhandler");
 
 include 'DB.php';
+include 'inc/class.EMDR.php';
+
 $DB = new DB(parse_ini_file('/home/http/private/db-eve.ini'));
 
 $regions = json_decode(file_get_contents('emdr/regions.json'),true);
@@ -28,9 +30,6 @@ $projectStyle = '<strong>%s</strong>'; // how to style project names
 
 $time = explode(' ', microtime());
 $start = $time[1] + $time[0];
-
-$redis = new Redis();
-$redis->connect('localhost', 6379) or die ("Could not connect to Redis server");
 
 $page = basename($_SERVER['PHP_SELF']);
 
@@ -61,5 +60,7 @@ if (isset($_COOKIE['preferences'])){
 	$prefs = filter_var_array(unserialize($_COOKIE['preferences']), $filterArgs); }
 else {
 	$prefs = $defaultPrefs; }
+
+$emdr = new EMDR($prefs['region'], $emdrVersion);
 
 ?>
