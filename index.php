@@ -252,7 +252,10 @@ else {
             
                 foreach ($results AS $corp){
                     echo "
-                <option ".(in_array($corp['corporationID'], $verified) ? " style='background-color:lightgreen !important;'" : null )." value='".$corp['corporationID']."'>".$corp['itemName']."</option>";
+                <option".
+                (in_array($corp['corporationID'], $verified) ? " style='background-color:lightgreen !important;'" : null ).
+                ($corp['corporationID'] == $prefs['defaultCorp'] ? " selected" : null).
+                " value='".$corp['corporationID']."'>".$corp['itemName']."</option>";
                 }
             echo "
             </select>
@@ -260,7 +263,7 @@ else {
            </form>
         </div>
     </div>
-    
+
     <div class='row-fluid'>
         <div class='span12'>
             <ul class='lpStats'>

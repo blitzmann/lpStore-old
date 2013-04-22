@@ -1,6 +1,10 @@
 <?php
 
 class EMDR extends Redis {
+
+    public  $regionID;
+    private $version;
+    
 	public function __construct($regionID, $emdrVersion = 1)
     {
         parent::__construct();

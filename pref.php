@@ -31,7 +31,7 @@ require 'head.php';
         <select name='region'>
         <?php
         foreach ($regions AS $id => $name){
-            echo "<option value='".$id."'".($id == $prefs['region'] ? " selected" : null).">".$name."</option>"; }
+            echo "  <option value='".$id."'".($id == $prefs['region'] ? " selected" : null).">".$name."</option>\n"; }
         ?>
         </select>
     </fieldset>
@@ -46,6 +46,24 @@ require 'head.php';
         <input name='marketMode' value='buy' type='radio'<?php echo ($prefs['marketMode'] == 'buy' ? " checked " : null) ?>/> <strong>Buy</strong>: 
             Will use the average of the highest 5% buy orders for pricing information. Useful if you want to just offload your goods at a trade hub (selling to buy order). <b>Note:</b> Required items and materials for blueprint manufacturing will still use sell orders for their calculations.
         </label>
+    </fieldset>
+	<fieldset>
+        <legend>Default Corporation</legend>
+
+        <p>Please select the default corporation you would like to be pre-selecgted in the corporation dropdown on the homepage.</p>
+        <select name='defaultCorp'>
+        <?php
+        foreach ($DB->qa('
+                    SELECT a.*, b.itemName 
+                    FROM lpStore a 
+                    INNER JOIN invUniqueNames b ON (a.corporationID = b.itemID AND b.groupID = 2) 
+                    GROUP BY a.corporationID 
+                    ORDER BY b.itemName ASC', array()) AS $corp){
+            echo "  <option value='".$corp['corporationID']."'".($corp['corporationID'] == $prefs['defaultCorp'] ? " selected" : null).">".$corp['itemName']."</option>\n"; 
+        }
+        ?>
+        </select>
+        </select>
     </fieldset>
     <div class="form-actions">
         <button type='submit' class='btn btn-primary'>Submit</button>
