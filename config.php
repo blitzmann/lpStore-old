@@ -23,15 +23,18 @@ $defaultPrefs = array(
 );
 
 $nav = array(
-    'index.php' => array('home', 'LP Stores'),
-	'about.php' => array('question-sign', 'About'),
-	'faq.php'   => array('pencil', 'FAQ'),
-	'mktScan.php' => array('barcode', 'Market Scanner'),
-	'pref.php' => array('cog', 'Preferences'));
+    '.' => array('home', 'LP Stores'),
+	'about' => array('question-sign', 'About'),
+	'faq'   => array('pencil', 'FAQ'),
+	'scanner' => array('barcode', 'Market Scanner'),
+	'preferences' => array('cog', 'Preferences'));
 
 $projectStyle = '<strong>%s</strong>'; // how to style project names
     
 // END USER CONFIGURATION
+
+foreach ($nav AS $page => $info){
+    $nav[BASE_PATH.$page] = $nav[$page]; unset($nav[$page]); }
 
 $time = explode(' ', microtime());
 $start = $time[1] + $time[0];
