@@ -7,6 +7,10 @@ ob_start("ob_gzhandler");
 include 'DB.php';
 include 'inc/class.EMDR.php';
 
+// taken from http://stackoverflow.com/a/12583387/788054
+define('ABS_PATH', str_replace('\\', '/', dirname(__FILE__)) . '/');
+define('BASE_PATH','/'.substr(dirname(__FILE__),strlen($_SERVER['DOCUMENT_ROOT'])).'/');
+
 $DB = new DB(parse_ini_file('/home/http/private/db-eve.ini'));
 
 $regions = json_decode(file_get_contents(dirname(__FILE__).'/emdr/regions.json'),true);
