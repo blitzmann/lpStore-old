@@ -1,7 +1,5 @@
 <?php
-
-include 'DB.php';
-$DB = new DB(parse_ini_file('/home/http/private/db-eve.ini'));
+include 'head.php';
 
 $verified = array();
 //Corps that have been verified:
@@ -15,57 +13,48 @@ $factionName = array (
     500004 => 'Gallente Federation'
 );    
     
-$factions = array (
-    500001 => array(),
-    500002 => array(),
-    500003 => array(),
-    500004 => array()
-);
+$factions = array ();
 ?>
 
-<html>
-<head>
-    <title>lpStore - The place for up-to-date LP-ISK conversion</title>
-    
-	<link href="style/bootstrap.min.css" rel="stylesheet" />
-	<link href="style/jquery-ui.min.css" rel="stylesheet" />
-	<link href="datatables/media/css/jquery.dataTables.css" rel="stylesheet" />
-
-    <script src="js/jquery-1.9.0.js"></script>
-	<script src="js/jquery-ui-1.10.0.custom.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="tablesorter/jquery.tablesorter.js"></script> 
-        <script src="datatables/media/js/jquery.dataTables.js"></script> 
-
-
-</head>
-<body>
-
-<div class="container-fluid">
-  <div class="row-fluid">
-  <div class='span2'>&nbsp;</div>
+<div id='content-header'><h2>Verified Corporations</h2></div>
+    <div class='container-fluid'>
+    <div class='row-fluid'>
 <?php
+
+$names = array();
     
 foreach ($DB->qa("
-    SELECT a.*, b.factionID, c.itemName, count(*) AS num
+    SELECT a.corporationID, b.factionID, c.itemName AS corpName, d.itemName AS facName, count(*) AS num
     FROM `lpStore` a 
     INNER JOIN crpNPCCorporations b ON (b.corporationID = a.corporationID) 
     INNER JOIN invUniqueNames c ON (a.corporationID = c.itemID AND c.groupID = 2)
+    INNER JOIN invUniqueNames d ON (b.factionID = d.itemID)
     GROUP BY a.corporationID 
     ORDER BY c.itemName ASC", array()) AS $corp){
-    if (!array_key_exists($corp['factionID'], $factions)){
-        continue; }
         
-    $faction[$corp['factionID']][] = "<li".(array_key_exists($corp['corporationID'], $verified) ? ($verified[$corp['corporationID']] == 1 ? " style='background-color:lightgreen !important;'" : " style='background-color:#C4C4FF !important;'" ) : null )."><a target='_blank' href='debug/index.php?corp=".$corp['corporationID']."'>".$corp['itemName']." (".$corp['num'].")</a></li>";
+    $factions[$corp['factionID']][$corp['corporationID']] = $corp['num'];
+    
+    if (!array_key_exists($corp['factionID'], $names)){
+        $names[$corp['factionID']] = $corp['facName']; }
+    if (!array_key_exists($corp['corporationID'], $names)){
+        $names[$corp['corporationID']] = $corp['corpName']; }
 }
+uasort($factions, create_function('$a, $b', 'return bccomp(count($b), count($a));'));
 
-foreach ($faction AS $id => $corps) {
-    echo " <div class='span2'><h4>".$factionName[$id]." (".count($corps).")</h4><ul>";
-    foreach ($corps AS $corp) {
-        echo $corp; }
+//var_dump($factions);
+foreach (array_chunk($factions, 4, true) AS $factionChunk) {
+    echo "<div class='row-fluid'><div class='span2'>&nbsp;</div>";
+        foreach ($factionChunk AS $id => $corpArray) {
+
+        echo "\n\t\t<div class='span2'><h4>".$names[$id]."</h4><ul style='list-style:none;'>";
+        foreach ($corpArray AS $id => $num) {
+           echo  "<li".(array_key_exists($id, $verified) ? ($verified[$id] == 1 ? " style='background-color:lightgreen !important;'" : " style='background-color:#C4C4FF !important;'" ) : null ).">".$names[$id]." (".$num.")</li>"; 
+        }
+        echo "</div>\n";
+    }
     echo "</div>";
 }
-    
+    echo "</div>";
 $corps = array(
     500001 => array (
         'military' => array(
@@ -114,3 +103,6 @@ $corps = array(
 );
 
 ?>
+</div></div>
+
+<?php include 'foot.php'; ?>
