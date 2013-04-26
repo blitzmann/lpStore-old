@@ -10,22 +10,22 @@ echo $total_time.'s';
 ?>
 <div>
 <a href="http://apache.org">
-  <img src="img/badge-apache-80x15.png"
+  <img src="<?php echo BASE_PATH; ?>img/badge-apache-80x15.png"
     width="80" height="15" border="0" alt="Powered by Apache"
     title="Powered by Apache 2.2" />
 </a>
 <a href="http://mariadb.org">
-  <img src="img/badge-mariadb-80x15.png"
+  <img src="<?php echo BASE_PATH; ?>img/badge-mariadb-80x15.png"
     width="80" height="15" border="0" alt="Powered by MariaDB"
     title="Powered by MariaDB" />
 </a>
 <a href="http://php.net">
-  <img src="img/badge-php-80x15.png"
+  <img src="<?php echo BASE_PATH; ?>img/badge-php-80x15.png"
     width="80" height="15" border="0" alt="Powered by PHP"
     title="Powered by PHP" />
 </a>
 <a href="http://redis.io">
-  <img src="img/badge-redis-80x15.png"
+  <img src="<?php echo BASE_PATH; ?>img/badge-redis-80x15.png"
     width="80" height="15" border="0" alt="Powered by Redis"
     title="Powered by Redis" />
 </a>

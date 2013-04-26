@@ -4,4 +4,4 @@ RewriteRule    ^faq/?$    faq.php    [NC,L]
 RewriteRule    ^preferences/?$    pref.php    [NC,L]
 RewriteRule    ^scanner/?$    mktScan.php    [NC,L]
 RewriteRule    ^corp/([0-9]+)/?$    index.php?corpID=$1    [NC,L]
-
+RewriteRule    ^corp/?$    index.php    [NC,L]
