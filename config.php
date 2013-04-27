@@ -7,6 +7,10 @@ ob_start("ob_gzhandler");
 include 'DB.php';
 include 'inc/class.EMDR.php';
 
+// taken from http://stackoverflow.com/a/12583387/788054
+define('ABS_PATH', str_replace('\\', '/', dirname(__FILE__)) . '/');
+define('BASE_PATH','/'.substr(dirname(__FILE__),strlen($_SERVER['DOCUMENT_ROOT'])).'/');
+
 $DB = new DB(parse_ini_file('/home/http/private/db-eve.ini'));
 
 $regions = json_decode(file_get_contents(dirname(__FILE__).'/emdr/regions.json'),true);
@@ -19,15 +23,18 @@ $defaultPrefs = array(
 );
 
 $nav = array(
-    'index.php' => array('home', 'LP Stores'),
-	'about.php' => array('question-sign', 'About'),
-	'faq.php'   => array('pencil', 'FAQ'),
-	'mktScan.php' => array('barcode', 'Market Scanner'),
-	'pref.php' => array('cog', 'Preferences'));
+    '.' => array('home', 'LP Stores'),
+	'about' => array('question-sign', 'About'),
+	'faq'   => array('pencil', 'FAQ'),
+	'scanner' => array('barcode', 'Market Scanner'),
+	'preferences' => array('cog', 'Preferences'));
 
 $projectStyle = '<strong>%s</strong>'; // how to style project names
     
 // END USER CONFIGURATION
+
+foreach ($nav AS $page => $info){
+    $nav[BASE_PATH.$page] = $nav[$page]; unset($nav[$page]); }
 
 $time = explode(' ', microtime());
 $start = $time[1] + $time[0];

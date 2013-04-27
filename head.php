@@ -1,22 +1,23 @@
 <?php require_once 'config.php'; ?>
 <html>
 <head>
+
     <title>lpStore<?php echo (isset($title) ? " - $title" : null); ?></title>
-	<link href="style/bootstrap.min.css" rel="stylesheet" />
-	<link href="style/jquery-ui.min.css" rel="stylesheet" />
-    <link href="style/lpStore.css" rel="stylesheet" />
+	<link href="<?php echo BASE_PATH; ?>style/bootstrap.min.css" rel="stylesheet" />
+	<link href="<?php echo BASE_PATH; ?>style/jquery-ui.min.css" rel="stylesheet" />
+    <link href="<?php echo BASE_PATH; ?>style/lpStore.css" rel="stylesheet" />
     <link href='http://fonts.googleapis.com/css?family=Open+Sans+Condensed:300,700|Open+Sans' rel='stylesheet' type='text/css'>
-    <link href="style/ColVis.css" rel="stylesheet" />
+    <link href="<?php echo BASE_PATH; ?>style/ColVis.css" rel="stylesheet" />
 
 
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
 	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.0/jquery-ui.min.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/lpStore.js"></script>
+    <script src="<?php echo BASE_PATH; ?>js/bootstrap.min.js"></script>
+    <script src="<?php echo BASE_PATH; ?>js/lpStore.js"></script>
 
-    <script src="js/jquery.dataTables.min.js"></script> 
-    <script src="js/jquery.dataTables.ColVis.min.js"></script> 
-    <script src="js/jquery.dataTables.FixedHeader.min.js"></script> 
+    <script src="<?php echo BASE_PATH; ?>js/jquery.dataTables.min.js"></script> 
+    <script src="<?php echo BASE_PATH; ?>js/jquery.dataTables.ColVis.min.js"></script> 
+    <script src="<?php echo BASE_PATH; ?>js/jquery.dataTables.FixedHeader.min.js"></script> 
 </head>
 <?php ob_flush(); ?>
 <body>
@@ -25,7 +26,7 @@
 </div>
 <div id='navigation'>
     <div id='sidebar-search'>
-        <form action='index.php' method='get'>
+        <form action='<?php echo BASE_PATH; ?>redirect.php' method='post'>
         <input id='lpStore_search' type="text" placeholder="Corp Search..." />
         <button class='tip-right' type='submit'><i class='icon-search icon-white'></i></button>
         <input type='hidden' name='corpID' id='autoCorpID' value='' />
