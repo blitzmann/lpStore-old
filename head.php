@@ -25,7 +25,7 @@
 </div>
 <div id='navigation'>
     <div id='sidebar-search'>
-        <form action='index.php' method='get'>
+        <form action='<?php echo BASE_PATH; ?>redirect.php' method='post'>
         <input id='lpStore_search' type="text" placeholder="Corp Search..." />
         <button class='tip-right' type='submit'><i class='icon-search icon-white'></i></button>
         <input type='hidden' name='corpID' id='autoCorpID' value='' />

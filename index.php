@@ -19,7 +19,7 @@ if (isset($_GET['corpID'])) {
             $regionID = 10000002; } //default to Jita
             
         $name = $DB->q1('SELECT itemName FROM invUniqueNames WHERE itemID = ? AND groupID = 2', array($corpID));
-       
+
         if ($name == false) {
             throw new Exception('Corporation ID does not exist within database.'); }
         
@@ -241,7 +241,7 @@ else {
             <p>Please select the desired corporation to the right to browse their store. Green backgrounds indicate corporations that have had their LP Store Offers verified, and thus should represent data found in-game. Please note that there is no guarentee of the data - the LP Stores may have missing, incomplete, or additional data that does not correctly represent the actual data found in-game. This is because <span class='project'>lpStore</span> operates on user-collected data, much of which is outdated and needs to be verified. It's currently in the process of being verified, but this is an ongoing process. Up-to-date information out the backend data can be found <a href='https://forums.eveonline.com/default.aspx?g=posts&t=197115'>at this EVE-ONLINE forum thread.</a></p>
         </div>
         <div class='span2 offset1'>
-            <form style='' id='corpForm' name='corpForm' action='index.php'  method='get'>
+            <form style='' id='corpForm' name='corpForm' action='redirect.php'  method='post'>
             <select class='large' style='width: 100%;' name='corpID'>";
                 $results = $DB->qa('
                     SELECT a.*, b.itemName 

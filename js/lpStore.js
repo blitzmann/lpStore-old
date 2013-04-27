@@ -67,7 +67,7 @@ $(document).ready(function() {
 	
 	$("#lpStore_search").autocomplete({
 		source: function(request, response) {
-			$.getJSON("suggest.php", { corpName: request.term }, response);
+			$.getJSON("/lpStore/suggest.php", { corpName: request.term }, response);
 		},
 		minLength: 2,
 		select: function(event, ui) {
