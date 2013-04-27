@@ -1,5 +1,6 @@
 <?php
-require 'config.php';
+$title = 'Preferences';
+require_once 'config.php';
 $ack = '';
 
 if (isset($_POST['region'])){
@@ -14,7 +15,7 @@ if (isset($_POST['region'])){
         $ack = "<div class='alert alert-danger'><strong>Error!</strong> There was an error saving your preferences.</div>"; }
 }
  
-require 'head.php'; 
+require_once 'head.php'; 
 
 ?>
 <div id='content-header'><h2>Preferences</h2></div>

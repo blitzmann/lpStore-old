@@ -1,4 +1,5 @@
 <?php
+$title = 'Verified Corps';
 include 'head.php';
 
 $verified = array();

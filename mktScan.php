@@ -1,4 +1,4 @@
-<?php require 'head.php'; ?>
+<?php $title = 'Market Scanner'; require 'head.php'; ?>
 <div id='content-header'><h2>Market Scanner</h2></div>
     <div class='container-fluid'>
     <div class='row-fluid'>

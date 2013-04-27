@@ -1,6 +1,6 @@
 <?php 
 
-require 'head.php'; 
+require_once 'config.php'; 
 
 $verified = array();
 //Corps that have been verified:
@@ -19,7 +19,8 @@ if (isset($_GET['corpID'])) {
             $regionID = 10000002; } //default to Jita
             
         $name = $DB->q1('SELECT itemName FROM invUniqueNames WHERE itemID = ? AND groupID = 2', array($corpID));
-       
+        $title = $name;
+        require_once 'head.php'; 
         if ($name == false) {
             throw new Exception('Corporation ID does not exist within database.'); }
         
@@ -221,6 +222,7 @@ if (isset($_GET['corpID'])) {
 	}	
 }
 else {
+    require_once 'head.php';
     $totalCorps = $DB->q1("SELECT COUNT( DISTINCT corporationID )  FROM `lpStore`", array());
     $largest    = $DB->qa("SELECT COUNT(typeID) AS cnt, b.itemName FROM `lpStore` a INNER JOIN invUniqueNames b ON ( a.corporationID = b.itemID AND b.groupID =2 ) GROUP BY a.corporationID ORDER BY cnt DESC LIMIT 0,1", array());
     $smallest   = $DB->qa("SELECT COUNT(typeID) AS cnt, b.itemName FROM `lpStore` a INNER JOIN invUniqueNames b ON ( a.corporationID = b.itemID AND b.groupID =2 ) GROUP BY a.corporationID ORDER BY cnt ASC LIMIT 0,1", array());
