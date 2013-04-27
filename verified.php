@@ -1,5 +1,5 @@
 <?php
-$title = 'Verified Corps';
+$title = 'Corporations';
 include 'head.php';
 
 $verified = array();
@@ -17,9 +17,14 @@ $factionName = array (
 $factions = array ();
 ?>
 
-<div id='content-header'><h2>Verified Corporations</h2></div>
-    <div class='container-fluid'>
-    <div class='row-fluid'>
+<div id='content-header'><h2>Corporations <small>Legend: 
+    <ul class='legend'>
+        <li><span>Corp Name - unverified</span></li>
+        <li class='vManual'><span>Corp Name - manual verification</span></li>
+        <li class='vRelation'><span>Corp Name - relational verification</span></li>
+    </ul></small></h2>
+</div>
+<div class='container-fluid'>
 <?php
 
 $names = array();
@@ -43,67 +48,18 @@ foreach ($DB->qa("
 uasort($factions, create_function('$a, $b', 'return bccomp(count($b), count($a));'));
 
 //var_dump($factions);
-foreach (array_chunk($factions, 4, true) AS $factionChunk) {
-    echo "<div class='row-fluid'><div class='span2'>&nbsp;</div>";
+foreach (array_chunk($factions, 5, true) AS $factionChunk) {
+    echo "<div class='row-fluid'><div class='span1'>&nbsp;</div>";
         foreach ($factionChunk AS $id => $corpArray) {
 
-        echo "\n\t\t<div class='span2'><h4>".$names[$id]."</h4><ul style='list-style:none;'>";
+        echo "\n\t\t<div class='span2'><h3>".$names[$id]."</h3><ul class='corpList'>";
         foreach ($corpArray AS $id => $num) {
-           echo  "<li".(array_key_exists($id, $verified) ? ($verified[$id] == 1 ? " style='background-color:lightgreen !important;'" : " style='background-color:#C4C4FF !important;'" ) : null ).">".$names[$id]." (".$num.")</li>"; 
+           echo  "<li".(array_key_exists($id, $verified) ? ($verified[$id] == 1 ? " class='vManual'" : " class='vRelation'" ) : null )."><a href='".BASE_PATH."corp/".$id."'>".$names[$id]."</a></li>"; 
         }
         echo "</div>\n";
     }
     echo "</div>";
 }
-    echo "</div>";
-$corps = array(
-    500001 => array (
-        'military' => array(
-            
-        ),
-        'industry' => array(
-            
-        ),
-        'exploration' => array(
-            
-        )
-    ),
-    500002 => array (
-        'military' => array(
-            
-        ),
-        'industry' => array(
-            
-        ),
-        'exploration' => array(
-            
-        )
-    ),
-    500003 => array (
-        'military' => array(
-            
-        ),
-        'industry' => array(
-            
-        ),
-        'exploration' => array(
-            
-        )
-    ),
-    500004 => array (
-        'military' => array(
-            
-        ),
-        'industry' => array(
-            
-        ),
-        'exploration' => array(
-            
-        )
-    )
-);
+echo "</div>";
 
-?>
-</div></div>
-
-<?php include 'foot.php'; ?>
+include 'foot.php'; ?>

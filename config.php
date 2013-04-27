@@ -24,10 +24,12 @@ $defaultPrefs = array(
 
 $nav = array(
     '.' => array('home', 'LP Stores'),
+    'corps' => array('star', 'Corporations'),
 	'about' => array('question-sign', 'About'),
 	'faq'   => array('pencil', 'FAQ'),
 	'scanner' => array('barcode', 'Market Scanner'),
-	'preferences' => array('cog', 'Preferences'));
+	'preferences' => array('cog', 'Preferences')
+);
 
 $projectStyle = '<strong>%s</strong>'; // how to style project names
     

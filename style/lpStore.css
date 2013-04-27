@@ -72,6 +72,10 @@ form {
 	font-size: 12px;
 }
 
+h1 small, h2 small, h3 small, h4 small, h5 small, h6 small {
+    margin-left: 1.5em;
+}
+
 /******************
 /**** Sidebar *****
 /*****************/
@@ -267,3 +271,65 @@ dd {
 .project {
     font-family: "open sans";
 }
+
+/************************
+** Verification Colors **
+*************************/
+.vManual {
+    background-color: lightgreen !important; 
+}
+
+.vRelation {
+    background-color:#C4C4FF !important; 
+}
+    
+/*********************
+** Corporation List **
+**********************/
+ 
+ul.corpList {
+    list-style-type: none;
+    margin: 0 0 5em 0;
+    padding: 0;
+}
+
+.corpList li {
+    border-bottom: 1px solid #ccc;
+}
+
+.corpList li:last-child {
+    border: none;
+}
+ 
+.corpList li a {
+    padding: 0.5em;
+    text-decoration: none;
+    color: #000;
+    display: block;
+}
+ 
+.corpList li a:hover {
+    background: #f6f6f6;
+}
+
+
+ul.legend {
+    display: inline;
+    margin: 0;
+}
+
+.legend li {
+    display: inline-block;
+    margin-right: 1.5em;
+}
+
+ .legend li span{
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    display: inline-block;
+    font-weight: normal;
+    font-size: 14px;
+    text-shadow: none;
+    color: #000000;
+    padding: 0.5em;
+}
+
