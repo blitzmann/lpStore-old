@@ -227,8 +227,8 @@ if (isset($_GET['corpID'])) {
 else {
     require_once 'head.php';
     $totalCorps = $DB->q1("SELECT COUNT( DISTINCT corporationID )  FROM `lpStore`", array());
-    $largest    = $DB->qa("SELECT COUNT(typeID) AS cnt, b.itemName FROM `lpStore` a NATURAL JOIN lpOffers c INNER JOIN invUniqueNames b ON ( a.corporationID = b.itemID AND b.groupID =2 ) GROUP BY a.corporationID ORDER BY cnt DESC LIMIT 0,1", array());
-    $smallest   = $DB->qa("SELECT COUNT(typeID) AS cnt, b.itemName FROM `lpStore` a NATURAL JOIN lpOffers c INNER JOIN invUniqueNames b ON ( a.corporationID = b.itemID AND b.groupID =2 ) GROUP BY a.corporationID ORDER BY cnt ASC LIMIT 0,1", array());
+    $largest    = $DB->qa("SELECT COUNT(typeID) AS cnt, corporationID, b.itemName FROM `lpStore` a NATURAL JOIN lpOffers c INNER JOIN invUniqueNames b ON ( a.corporationID = b.itemID AND b.groupID =2 ) GROUP BY a.corporationID ORDER BY cnt DESC LIMIT 0,1", array());
+    $smallest   = $DB->qa("SELECT COUNT(typeID) AS cnt, corporationID, b.itemName FROM `lpStore` a NATURAL JOIN lpOffers c INNER JOIN invUniqueNames b ON ( a.corporationID = b.itemID AND b.groupID =2 ) GROUP BY a.corporationID ORDER BY cnt ASC LIMIT 0,1", array());
 
     $totalVerified = count($verified);
 	echo "
@@ -242,10 +242,10 @@ else {
                 <strong>Warning!</strong> This site is best used with JavaScript enabled! Please <a href='http://www.enable-javascript.com/'>enable it via your browser settings</a>.
             </div>
         </noscript>
-        <div class='span8'>
-            <p>Please select the desired corporation to the right to browse their store. Green backgrounds indicate corporations that have had their LP Store Offers verified, and thus should represent data found in-game. Please note that there is no guarentee of the data - the LP Stores may have missing, incomplete, or additional data that does not correctly represent the actual data found in-game. This is because <span class='project'>lpStore</span> operates on user-collected data, much of which is outdated and needs to be verified. It's currently in the process of being verified, but this is an ongoing process. Up-to-date information out the backend data can be found <a href='https://forums.eveonline.com/default.aspx?g=posts&t=197115'>at this EVE-ONLINE forum thread.</a></p>
+        <div class='span9' style='margin-left: 0px;'>
+            <p>Please select the desired corporation to the right to browse their store. Green backgrounds indicate corporations that have had their LP Store Offers verified, and thus should represent data found in-game. Please note that there is no guarentee of the data - the LP Stores may have missing, incomplete, or additional data that does not correctly represent the actual data found in-game. This is because <span class='project'>lpStore</span> operates on user-collected data, much of which is outdated and needs to be verified. It's currently in the process of being verified, but this is an ongoing process. Up-to-date information of the backend data can be found <a href='https://forums.eveonline.com/default.aspx?g=posts&t=197115'>at this EVE-ONLINE forum thread.</a></p>
         </div>
-        <div class='span2 offset1'>
+        <div class='span3'>
             <form style='' id='corpForm' name='corpForm' action='redirect.php'  method='post'>
             <select class='large' style='width: 100%;' name='corpID'>";
                 $results = $DB->qa('
@@ -272,10 +272,10 @@ else {
     <div class='row-fluid'>
         <div class='span12'>
             <ul class='lpStats'>
-                <li><strong>".$totalCorps."</strong> LP Stores</li>
-                <li><strong>".round(($totalVerified / $totalCorps) * 100, 0)."%</strong> Stores Verified</li>
-                <li><strong>".$largest[0]['cnt']."</strong> Largest Store</li>
-                <li><strong>".$smallest[0]['cnt']."</strong> Smallest Store</li>
+                <li><a href='".BASE_PATH."corps/'><strong>".$totalCorps."</strong> LP Stores</a></li>
+                <li><a href='".BASE_PATH."corps/'><strong>".round(($totalVerified / $totalCorps) * 100, 0)."%</strong> Stores Verified</a></li>
+                <li><a href='".BASE_PATH."corp/".$largest[0]['corporationID']."'><strong>".$largest[0]['cnt']."</strong> Largest Store</a></li>
+                <li><a href='".BASE_PATH."corp/".$smallest[0]['corporationID']."'><strong>".$smallest[0]['cnt']."</strong> Smallest Store</a></li>
             </ul>
         </div>
     </div>"; 

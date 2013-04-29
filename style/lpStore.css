@@ -216,10 +216,9 @@ h1 small, h2 small, h3 small, h4 small, h5 small, h6 small {
 	width: 100%;
 }
 .lpStats li {
-    padding: 13px 20px 10px;	
+    margin: 0 10px 20px;
     border: 1px solid transparent;
     display: inline-block;
-    margin: 0 10px 20px;
 }
 
 .lpStats li strong {
@@ -232,6 +231,12 @@ h1 small, h2 small, h3 small, h4 small, h5 small, h6 small {
     background-color: #F5F5F5;
     border: 1px solid #DDDDDD;
     /* cursor: pointer; */
+}
+
+.lpStats li a {
+    padding: 13px 20px 10px;	
+    display: inline-block;
+    color: #000000;
 }
 
 /***************
