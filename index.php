@@ -27,11 +27,12 @@ if (isset($_GET['corpID'])) {
             throw new Exception('Corporation ID does not exist within database.'); }
         
         $offers = $DB->qa('
-            SELECT      a.*, b.typeName  
-            FROM        lpStore a
-            INNER JOIN  invTypes b ON (a.typeID = b.typeID)
-            WHERE       a.corporationID = ?
-            ORDER BY    a.`lpCost`, a.iskCost, b.typeName', array($corpID));
+            SELECT a . * , b.typeName, c.*
+            FROM lpStore a
+            NATURAL JOIN lpOffers c
+            INNER JOIN invTypes b ON ( c.typeID = b.typeID ) 
+            WHERE a.corporationID = ?
+            ORDER BY c.`lpCost` , c.iskCost, b.typeName', array($corpID));
             
         echo "
             <div id='content-header'><h2>".$name." <small>".$regions[$regionID]." - ".ucfirst($marketMode)." Orders</small></h2></div>
@@ -48,12 +49,12 @@ if (isset($_GET['corpID'])) {
         */
         $reqContainer = array();
         foreach ($DB->qa('
-            SELECT      a.typeID, a.quantity, b.typeName, a.parentID
-            FROM        lpRequiredItems a
+            SELECT      a.typeID, a.quantity, b.typeName, a.offerID
+            FROM        lpOfferRequirements a
             INNER JOIN  invTypes b ON (b.typeID = a.typeID)
-            INNER JOIN  lpStore c ON (c.storeID = a.parentID)
+            INNER JOIN  lpStore c ON (a.offerID = c.offerID)
             WHERE       c.corporationID = ?', array($corpID)) AS $item) {  
-                $reqContainer[$item['parentID']][] = $item; }                
+                $reqContainer[$item['offerID']][] = $item; }                
         
         foreach ($offers AS $offer){
             $totalCost = $offer['iskCost'];
@@ -88,8 +89,8 @@ if (isset($_GET['corpID'])) {
                 $fresh = array('default', 'Price has not yet been cached'); }
             
             // set required items
-            if (isset($reqContainer[$offer['storeID']])){
-                $reqItems = $reqContainer[$offer['storeID']];}
+            if (isset($reqContainer[$offer['offerID']])){
+                $reqItems = $reqContainer[$offer['offerID']];}
             else {
                 $reqItems = array(); }
 
@@ -226,8 +227,8 @@ if (isset($_GET['corpID'])) {
 else {
     require_once 'head.php';
     $totalCorps = $DB->q1("SELECT COUNT( DISTINCT corporationID )  FROM `lpStore`", array());
-    $largest    = $DB->qa("SELECT COUNT(typeID) AS cnt, b.itemName FROM `lpStore` a INNER JOIN invUniqueNames b ON ( a.corporationID = b.itemID AND b.groupID =2 ) GROUP BY a.corporationID ORDER BY cnt DESC LIMIT 0,1", array());
-    $smallest   = $DB->qa("SELECT COUNT(typeID) AS cnt, b.itemName FROM `lpStore` a INNER JOIN invUniqueNames b ON ( a.corporationID = b.itemID AND b.groupID =2 ) GROUP BY a.corporationID ORDER BY cnt ASC LIMIT 0,1", array());
+    $largest    = $DB->qa("SELECT COUNT(typeID) AS cnt, b.itemName FROM `lpStore` a NATURAL JOIN lpOffers c INNER JOIN invUniqueNames b ON ( a.corporationID = b.itemID AND b.groupID =2 ) GROUP BY a.corporationID ORDER BY cnt DESC LIMIT 0,1", array());
+    $smallest   = $DB->qa("SELECT COUNT(typeID) AS cnt, b.itemName FROM `lpStore` a NATURAL JOIN lpOffers c INNER JOIN invUniqueNames b ON ( a.corporationID = b.itemID AND b.groupID =2 ) GROUP BY a.corporationID ORDER BY cnt ASC LIMIT 0,1", array());
 
     $totalVerified = count($verified);
 	echo "

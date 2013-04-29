@@ -33,3 +33,4 @@ echo $total_time.'s';
 </div>
 </body>
 </html>
+<?php exit; ?>

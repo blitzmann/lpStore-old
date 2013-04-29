@@ -9,7 +9,7 @@
 <p>I was first introduced to Factional Warfare when my corp joined it after a particularly horrible null sec campaign. I immediately saw the value in automatically calculating ISK/LP and went to work on <span class='project'>lpStore</span>'s prototype. It was a simple application, with a script set to periodically run to update prices from EVE Central. I used Ellatha's site and manually copy and pasted the LP store offers for my faction - I didn't bother with other stores. Development eventually halted as my corp disbanded and absorbed into our old alliance's main corp and we moved back to null and away from FW.</p>
 <p>The null sec thing eventually faded away again, and many of us jumped right back into FW. I was interested in continuing where I left off; however I wanted to go bigger and on a much larger scale. I no longer wanted to provide data for my FW faction and for my friends only, but for all LP Store's in-game and the rest of the EVE community.</p>
 <h4>Release</h4>
-<p><span class='project'>lpStore</span> has not been released yet.</p>
+<p><span class='project'>lpStore</span> was introduced to the communitiy on DATE, and it's source code can be viewed on <a href='https://github.com/blitzmann/lpStore' target='_blank'>GitHub</a>.</p>
 <h3>lpDatabase</h3> 
 <p><span class='project'>lpDatabase</span> is a completely separate project that <span class='project'>lpStore</span> is built upon. <span class='project'>lpDatabase</span> is simply the SQL database used for <span class='project'>lpStore</span>, and it is currently being maintained separately due to the scope of the project.</p>
 <h4>History</h4>
@@ -17,6 +17,10 @@
 <h4>Release</h4>
 <p>I released the first version of the <span class='project'>lpDatabase</span> to the <a href='https://forums.eveonline.com/default.aspx?g=posts&find=unread&t=197115'>EVE Online Technology Lab forum</a>. <span class='project'>lpDatabase</span> is not considered complete until all LP Stores in EVE have had their contents verified for accuracy. As the underlying data seems to come from a site scrape of Ellatha, which itself is outdated and prone to errors, accuracy cannot be guaranteed.
 </p>
+<h3>emdr-py</h3>
+<p><span class='project'>emdr-py</span> is an open-source EMDR consumer script written in Python and initially based off of Steve Ronuken's <a href='https://github.com/fuzzysteve/EMDR-Consumer' target='_blank'>Perl script</a> (credit should go to him for how the prices are calculated). It is a set-it-and-forget-it consumer, constantly pulling data from the EMDR services for the most up-to-date prices available.</p>
+<h4>Release</h4>
+<p><span class='project'>emdr-py</span> is released on <a href= 'https://github.com/blitzmann/emdr-py' target='_blank'>GutHub</a>.</p>
 <h3>Credits</h3>
 <dl>
     <dt>Steve Ronuken</dt>

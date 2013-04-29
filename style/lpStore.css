@@ -298,7 +298,11 @@ ul.corpList {
 }
 
 .corpList li:last-child {
-    border: none;
+    border: 1px solid transparent;
+}
+
+.corpList li:hover {
+    border-bottom: 1px solid #000;
 }
  
 .corpList li a {
@@ -311,7 +315,6 @@ ul.corpList {
 .corpList li a:hover {
     background: #f6f6f6;
 }
-
 
 ul.legend {
     display: inline;

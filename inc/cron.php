@@ -18,22 +18,21 @@ $done = array();
 $i = 0;
 
 foreach ($DB->qa('
-            SELECT      a.typeID, a.quantity, b.typeName, a.parentID
-            FROM        lpRequiredItems a
+            SELECT      a.typeID, a.quantity, b.typeName, a.offerID
+            FROM        lpOfferRequirements a
             INNER JOIN  invTypes b ON (b.typeID = a.typeID)
-            INNER JOIN  lpStore c ON (c.storeID = a.parentID)', array()) AS $item) {  
-                $req[$item['parentID']][] = $item; }
+            INNER JOIN  lpOffers c ON (c.offerID = a.offerID)', array()) AS $item) {  
+                $req[$item['offerID']][] = $item; }
 $DB->beginTransaction(); 
 
-foreach ($DB->qa('SELECT a.*, b.typeName FROM lpStore a INNER JOIN  invTypes b ON (a.typeID = b.typeID)
-', array()) AS $offer) {
+foreach ($DB->qa('SELECT a.*, b.typeName FROM lpOffers a INNER JOIN  invTypes b ON (a.typeID = b.typeID)', array()) AS $offer) {
 
-    // collect unique info
+    // collect unique info - unneeded anymore?
     $reqArray = array();
     $array = array();
-    if (isset($req[$offer['storeID']])){
-        foreach ($req[$offer['storeID']] AS $item) {
-            $reaArray[$item['typeID']] = $item['quantity']; }
+    if (isset($req[$offer['offerID']])){
+        foreach ($req[$offer['offerID']] AS $item) {
+            $reqArray[$item['typeID']] = $item['quantity']; }
         ksort($reqArray);
     }
     array_push($array, $offer['typeID'], $offer['quantity'], $offer['lpCost'], $offer['iskCost'], $reqArray);
@@ -59,8 +58,8 @@ foreach ($DB->qa('SELECT a.*, b.typeName FROM lpStore a INNER JOIN  invTypes b O
         }
         
         // set required items
-        if (isset($req[$offer['storeID']])){
-            $reqItems = $reqContainer[$offer['storeID']];}
+        if (isset($req[$offer['offerID']])){
+            $reqItems = $reqContainer[$offer['offerID']];}
         else {
             $reqItems = array(); }
 
@@ -167,7 +166,9 @@ foreach ($DB->qa('SELECT a.*, b.typeName FROM lpStore a INNER JOIN  invTypes b O
         
     }
      
-    $DB->ea("INSERT INTO lpTracking (storeID, time, lp2isk) VALUES (?, NOW(), ?)", array($offer['storeID'], $done[$md5]));
+    $DB->ea("INSERT INTO lpTracking (offerID, time, lp2isk) VALUES (?, NOW(), ?)", array($offer['offerID'], $done[$md5]));
+    
+    print "$offer[offerID]\n";
 }
 $DB->commit();
 print "Yay!";
