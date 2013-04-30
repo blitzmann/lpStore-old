@@ -86,7 +86,9 @@ if (isset($_GET['corpID'])) {
             }
             else {
                 $label = "N/A";
-                $fresh = array('default', 'Price has not yet been cached'); }
+                $fresh = array('default', 'Price has not yet been cached'); 
+                $timeDiff = 99999999;
+            }
             
             // set required items
             if (isset($reqContainer[$offer['offerID']])){

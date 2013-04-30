@@ -39,7 +39,7 @@ require_once 'head.php';
     <fieldset>
         <legend>Default Corporation</legend>
 
-        <p>Please select the default corporation you would like to be pre-selecgted in the corporation dropdown on the homepage.</p>
+        <p>Please select the default corporation you would like to be pre-selected in the corporation dropdown on the homepage.</p>
         <select name='defaultCorp'>
         <?php
         foreach ($DB->qa('
@@ -59,11 +59,11 @@ require_once 'head.php';
         
         <label class="radio">
         <input name='marketMode' value='sell' type='radio'<?php echo ($prefs['marketMode'] == 'sell' ? " checked " : null) ?>/> <strong>Sell Orders</strong>: 
-            Will use the average of the lowest 5% sell orders for pricing information. Useful if you have good market skills and are wanting the best margin.
+            Will use the average of the lowest 5% <strong>sell orders</strong> for pricing information. Useful if you are planning on putting up sell orders and have good market skills; usuallt results in the best margin.
         </label>
         <label class="radio">
         <input name='marketMode' value='buy' type='radio'<?php echo ($prefs['marketMode'] == 'buy' ? " checked " : null) ?>/> <strong>Buy Orders</strong>: 
-            Will use the average of the highest 5% buy orders for pricing information. Useful if you want to just offload your goods at a trade hub (selling to buy order). <b>Note:</b> Required items and materials for blueprint manufacturing will still use sell orders for their calculations.
+            Will use the average of the highest 5% <strong>buy orders</strong> for pricing information. Useful if you want to just offload your goods at a trade hub (selling to buy order). <b>Note:</b> Required items and materials for blueprint manufacturing will still use sell orders for their calculations.
         </label>
     </fieldset>
     <div class="form-actions">
