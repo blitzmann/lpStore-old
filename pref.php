@@ -37,18 +37,6 @@ require_once 'head.php';
         </select>
     </fieldset>
     <fieldset>
-        <legend>Default Market Mode</legend>
-        
-        <label class="radio">
-        <input name='marketMode' value='sell' type='radio'<?php echo ($prefs['marketMode'] == 'sell' ? " checked " : null) ?>/> <strong>Sell</strong>: 
-            Will use the average of the lowest 5% sell orders for pricing information. Useful if you have good market skills and are wanting the best margin.
-        </label>
-        <label class="radio">
-        <input name='marketMode' value='buy' type='radio'<?php echo ($prefs['marketMode'] == 'buy' ? " checked " : null) ?>/> <strong>Buy</strong>: 
-            Will use the average of the highest 5% buy orders for pricing information. Useful if you want to just offload your goods at a trade hub (selling to buy order). <b>Note:</b> Required items and materials for blueprint manufacturing will still use sell orders for their calculations.
-        </label>
-    </fieldset>
-	<fieldset>
         <legend>Default Corporation</legend>
 
         <p>Please select the default corporation you would like to be pre-selecgted in the corporation dropdown on the homepage.</p>
@@ -65,6 +53,18 @@ require_once 'head.php';
         ?>
         </select>
         </select>
+    </fieldset>
+    <fieldset>
+        <legend>Default Market Mode</legend>
+        
+        <label class="radio">
+        <input name='marketMode' value='sell' type='radio'<?php echo ($prefs['marketMode'] == 'sell' ? " checked " : null) ?>/> <strong>Sell Orders</strong>: 
+            Will use the average of the lowest 5% sell orders for pricing information. Useful if you have good market skills and are wanting the best margin.
+        </label>
+        <label class="radio">
+        <input name='marketMode' value='buy' type='radio'<?php echo ($prefs['marketMode'] == 'buy' ? " checked " : null) ?>/> <strong>Buy Orders</strong>: 
+            Will use the average of the highest 5% buy orders for pricing information. Useful if you want to just offload your goods at a trade hub (selling to buy order). <b>Note:</b> Required items and materials for blueprint manufacturing will still use sell orders for their calculations.
+        </label>
     </fieldset>
     <div class="form-actions">
         <button type='submit' class='btn btn-primary'>Submit</button>
