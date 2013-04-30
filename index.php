@@ -61,7 +61,7 @@ if (isset($_GET['corpID'])) {
             $req       = array(); // array that holds name of reuired items
             $cached    = false;   // flag
             $bpc       = false;   // flag
-            
+
             // get pricing info on item
             if ($price = $emdr->get($offer['typeID'])) {
                 $cached   = true;
@@ -87,7 +87,6 @@ if (isset($_GET['corpID'])) {
             else {
                 $label = "N/A";
                 $fresh = array('default', 'Price has not yet been cached'); 
-                $timeDiff = 99999999;
             }
             
             // set required items
@@ -125,6 +124,7 @@ if (isset($_GET['corpID'])) {
                 // set pricing info as the manufactured item
                 if ($price = $emdr->get($manTypeID)) {
                     $price  = json_decode($price, true); 
+                    $timeDiff = (time() - $price['orders']['generatedAt'])/60/60; // time difference in hours
                     $cached = true;
                 }
                 
@@ -206,7 +206,7 @@ if (isset($_GET['corpID'])) {
             echo "
             <tr id='lp-$offer[typeID]'>
                 <td><span class='label label-".$fresh[0]." pop lp-label' 
-                    data-content='".($fresh[0] !== 'default' ? "Reported: ".round($timeDiff)."h ago<br />Price: ".number_format($price['orders'][$marketMode][0], 2) : null)."' 
+                    data-content='".($cached ? "Reported: ".round($timeDiff)."h ago<br />Price: ".number_format($price['orders'][$marketMode][0], 2) : null)."' 
                     rel='popover' 
                     data-placement='right' 
                     data-original-title='".$fresh[1]."' 
