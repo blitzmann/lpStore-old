@@ -22,7 +22,7 @@
 <?php ob_flush(); ?>
 <body>
 <div id="header">
-    <h1><a href="index.php">lpStore</a><small>beta</small></h1>  
+    <h1><a href="<?php echo BASE_PATH; ?>index.php">lpStore</a><small>beta</small></h1>  
 </div>
 <div id='navigation'>
     <div id='sidebar-search'>

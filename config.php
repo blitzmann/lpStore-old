@@ -27,7 +27,7 @@ $nav = array(
     'corps' => array('star', 'Corporations'),
 	'about' => array('question-sign', 'About'),
 	'faq'   => array('pencil', 'FAQ'),
-	'scanner' => array('barcode', 'Market Scanner'),
+//	'scanner' => array('barcode', 'Market Scanner'),
 	'preferences' => array('cog', 'Preferences')
 );
 
