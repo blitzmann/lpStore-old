@@ -237,6 +237,7 @@ else {
     <div id='content-header'><h2>Welcome to lpStore!</h2></div>
     <div id='breadcrumb'></div>
     <div class='container-fluid'>
+
     <div class='row-fluid'>
         <noscript>
             <div class='alert'> 

@@ -3,7 +3,7 @@
 // config.php - handles all initial configuration, does not produce any output
 
 ob_start("ob_gzhandler");
-
+//die('LP store down for database update.     Check back in a few minutes.');
 include 'DB.php';
 include 'inc/class.EMDR.php';
 
@@ -11,7 +11,11 @@ include 'inc/class.EMDR.php';
 define('ABS_PATH', str_replace('\\', '/', dirname(__FILE__)) . '/');
 define('BASE_PATH','/'.substr(dirname(__FILE__),strlen($_SERVER['DOCUMENT_ROOT'])).'/');
 
-$DB = new DB(parse_ini_file('/home/http/private/db-eve-retribution-readonly.ini'));
+// todo: incorporate this into DB class / .ini file
+define('DATABASE', 'eve-odyssey-1.1'); 
+define('LPDB',     '0.7.1'); 
+
+$DB = new DB(parse_ini_file('/home/http/private/db-eve-odyssey-readonly.ini'));
 
 $regions = json_decode(file_get_contents(dirname(__FILE__).'/emdr/regions.json'),true);
 $emdrVersion = 1;
