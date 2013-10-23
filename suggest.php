@@ -67,6 +67,25 @@ else if (isset($_REQUEST['corpName'])) {
 	echo json_encode($data);
 	flush();
 }
+else if (isset($_REQUEST['systemName'])) {
+	$rs = $DB->qa('SELECT solarSystemID, solarSystemName FROM mapSolarSystems WHERE solarSystemName LIKE ? ', array('%'.$_REQUEST['systemName'].'%'));
+	 
+	// loop through each zipcode returned and format the response for jQuery
+	$data = array();
+	if ($rs && count($rs)) {
+		foreach ($rs AS $row) {
+			$data[] = array(
+				'value' => $row['solarSystemName'],
+				'id' => $row['solarSystemID']
+			);
+		}
+	}
+	 
+	// jQuery wants JSON data
+	echo json_encode($data);
+	flush();
+}
+
 else if (isset($_REQUEST['search'])) {
 	$rs = $DB->qa('
 SELECT a . * , b.typeName

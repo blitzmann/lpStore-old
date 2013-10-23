@@ -3,7 +3,9 @@
 <head>
 
     <title>lpStore<?php echo (isset($title) ? " - $title" : null); ?></title>
-	<link href="<?php echo BASE_PATH; ?>style/bootstrap.min.css" rel="stylesheet" />
+	<script>var basePath = '<?php echo BASE_PATH; ?>';</script>
+    
+    <link href="<?php echo BASE_PATH; ?>style/bootstrap.min.css" rel="stylesheet" />
 	<link href="<?php echo BASE_PATH; ?>style/jquery-ui.min.css" rel="stylesheet" />
     <link href="<?php echo BASE_PATH; ?>style/lpStore.css" rel="stylesheet" />
     <link href='http://fonts.googleapis.com/css?family=Open+Sans+Condensed:300,700|Open+Sans' rel='stylesheet' type='text/css'>
@@ -18,6 +20,7 @@
     <script src="<?php echo BASE_PATH; ?>js/jquery.dataTables.min.js"></script> 
     <script src="<?php echo BASE_PATH; ?>js/jquery.dataTables.ColVis.min.js"></script> 
     <script src="<?php echo BASE_PATH; ?>js/jquery.dataTables.FixedHeader.min.js"></script> 
+    
 </head>
 <?php ob_flush(); ?>
 <body>

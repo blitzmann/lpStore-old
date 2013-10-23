@@ -67,11 +67,21 @@ $(document).ready(function() {
 	
 	$("#lpStore_search").autocomplete({
 		source: function(request, response) {
-			$.getJSON("/lpStore/suggest.php", { corpName: request.term }, response);
+			$.getJSON(basePath+"suggest.php", { corpName: request.term }, response);
 		},
 		minLength: 2,
 		select: function(event, ui) {
 			$('#autoCorpID').val(ui.item.id);
+		}
+	});
+    
+    $("#systemSearch").autocomplete({
+		source: function(request, response) {
+			$.getJSON(basePath+"suggest.php", { systemName: request.term }, response);
+		},
+		minLength: 2,
+		select: function(event, ui) {
+			$('#autoSystemID').val(ui.item.id);
 		}
 	});
 }); 

@@ -35,7 +35,7 @@ if (isset($_GET['corpID'])) {
             ORDER BY c.`lpCost` , c.iskCost, b.typeName', array($corpID));
             
         echo "
-            <div id='content-header'><h2>".$name." <small>".$regions[$regionID]." - ".ucfirst($marketMode)." Orders</small></h2></div>
+            <div id='content-header'><h2>".$name." <small>".$regions[$regionID]." - ".ucfirst($marketMode)." Orders | <a href='#stationsLink'>Stations</a></small></h2></div>
                 <div class='container-fluid'>
                 <div class='row-fluid'>
                     <table class='table table-bordered table-condensed table-striped' id='lpOffers'>
@@ -106,7 +106,7 @@ if (isset($_GET['corpID'])) {
 				if ($rprice = $emdr->get($reqItem['typeID'])) {
 					$rprice = json_decode($rprice, true);
 					$totalCost = $totalCost + ($rprice['orders']['sell'][0] * $reqItem['quantity']);
-					array_push($req, $reqItem['quantity']." x ".$reqItem['typeName']); 
+					array_push($req, $reqItem['quantity']." x ".$reqItem['typeName']." $reqItem[typeID]"); 
 				}
             }
             
@@ -220,7 +220,29 @@ if (isset($_GET['corpID'])) {
                 <td>".(is_numeric($lp2isk)? number_format($lp2isk) : $lp2isk)."</td>
             </tr>";
         }
+        echo "</table></div>
+        <div class='row-fluid'>
+        <h3 id='stationsLink'>Stations</h3>
+        <form id='stationSystem'>
+            <div class='input-append'>
+                <input class='span2' name='startSystemID' id='systemSearch' type='text' placeholder='System Search...' />
+                <button class='btn' type='button'><i class='icon-search icon'></i> Search</button>
+            </div> 
+            <input type='hidden' name='startSystemID' id='autoSystemID' value='' />
+        </form>
+        <table style='margin-top: 1em;' class='table table-bordered table-condensed table-striped' id='stations'>
+                        <thead><tr><th>Security</th><th>Station</th></thead>
+                        <tbody>";
+
+        foreach ($DB->qa('
+            SELECT a.*, b.solarSystemName, b.security
+            FROM `staStations` a
+           INNER JOIN `mapSolarSystems` b ON (b.solarSystemID = a.solarSystemID)
+            WHERE a.corporationID = ?
+           ORDER BY a.stationName', array($corpID)) AS $station){
+            echo "<tr id='".$station['stationID']."'><td>".sprintf('%0.1f', ($station['security'] < 0 ? 0.0 : $station['security']))."</td><td>".$station['stationName']."</td></tr>\n"; }
         echo "</table>";
+        
     } catch (Exception $e) {
 		echo "<h3>Error</h3>
         <p>".$e->getMessage()."</p>";

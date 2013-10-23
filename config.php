@@ -11,7 +11,8 @@ include 'inc/class.EMDR.php';
 define('ABS_PATH', str_replace('\\', '/', dirname(__FILE__)) . '/');
 define('BASE_PATH','/'.substr(dirname(__FILE__),strlen($_SERVER['DOCUMENT_ROOT'])).'/');
 
-$DB = new DB(parse_ini_file('/home/http/private/db-eve-retribution-readonly.ini'));
+$DB = new DB(parse_ini_file('/home/http/private/db-eve-odyssey-dev.ini'));
+DEFINE('DATABASE', '');
 
 $regions = json_decode(file_get_contents(dirname(__FILE__).'/emdr/regions.json'),true);
 $emdrVersion = 1;
